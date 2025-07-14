@@ -1,0 +1,27 @@
+# 作業系統檔案
+.DS_Store
+Thumbs.db
+
+# 編輯器檔案
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python 檔案
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+
+# 暫存檔案
+*.tmp
+*.bak
+*.log
+
+# 不需要的測試檔案
+test_*
+temp_*
