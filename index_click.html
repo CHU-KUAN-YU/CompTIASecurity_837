@@ -163,6 +163,9 @@
 <body>
     <div class="container">
         <h1>刷題系統 - 分組練習</h1>
+        <div id="not-in-database-warning" style="background: #fff3cd; color: #856404; border-left: 6px solid #ffc107; padding: 12px 18px; margin: 18px 0 10px 0; border-radius: 6px; font-size: 16px;">
+            <strong>注意：</strong>題號 <span id="not-in-database-list" style="font-family:monospace;"></span> 不在本系統題庫中，無法出現於練習或隨機抽題。
+        </div>
         
         <div id="loading" class="loading">
             載入題目中...
@@ -179,6 +182,10 @@
             
             <div class="range-options" id="range-options">
                 <!-- 動態生成範圍選項 -->
+            </div>
+
+            <div style="margin: 15px 0; text-align: center;">
+                <button id="general-review-btn" style="padding: 12px 30px; background-color: #ff9800; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer;">總複習（隨機抽題）</button>
             </div>
             
             <div class="custom-range">
@@ -273,6 +280,8 @@
         let randomQuestionNumbers = [];
         let userAnswers = {}; // 儲存用戶答案
         let answeredQuestions = new Set(); // 記錄已答題目
+        let generalReview = [638,40,171,149,151,19,11,32,139,145,147,119,142,20,143,37,3,122,146,4,35,113,141,26,7,174,117,39,138,9,14,12,16,34,136,18,114,22,1,42,23,135,5,17,24,29];
+        let notQuestNumber = [44,45,437,501,502,615];
 
         let questionsAry =  [
   {
@@ -391,7 +400,7 @@
       "B": "Ability to patch",
       "C": "Physical isolation",
       "D": "Responsiveness",
-      "E": "Attack surface 6",
+      "E": "Attack surface",
       "F": "Extensible authentication"
     },
     "answer": "AD",
@@ -501,7 +510,7 @@
       "C": "Destruction",
       "D": "Inventory"
     },
-    "answer": "B",
+    "answer": "C",
     "explanation": "Sanitization is the process of removing sensitive data from a storage device or a system before it is disposed of or reused. Sanitization can be done by using software tools or hardware devices that overwrite the data with random patterns or zeros, making it unrecoverable. Sanitization is different from destruction, which is the physical damage of the storage device to render it unusable. Sanitization is also different from enumeration, which is the identification of network resources or devices, and inventory, which is the tracking of assets and their locations. The policy of securely wiping hard drives before sending decommissioned systems to recycling is an example of sanitization, as it ensures that no confidential data can be retrieved from the recycled devices."
   },
   {
@@ -522,7 +531,7 @@
       "A": "Local data protection regulations",
       "B": "Risks from hackers residing in other countries",
       "C": "Impacts to existing contractual obligations",
-      "D": "Time zone differences in log correlation 10"
+      "D": "Time zone differences in log correlation"
     },
     "answer": "A",
     "explanation": "Local data protection regulations are the first thing that a cloud-hosting provider should consider before expanding its data centers to new international locations. Data protection regulations are laws or standards that govern how personal or sensitive data is collected, stored, processed, and transferred across borders. Different countries or regions may have different data protection regulations, such as the General Data Protection Regulation (GDPR) in the European Union, the Personal Information Protection and Electronic Documents Act (PIPEDA) in Canada, or the California Consumer Privacy Act (CCPA) in the United States. A cloud-hosting provider must comply with the local data protection regulations of the countries or regions where it operates or serves customers, or else it may face legal penalties, fines, or reputational damage. Therefore, a cloud-hosting provider should research and understand the local data protection regulations of the new international locations before expanding its data centers there."
@@ -647,7 +656,7 @@
   },
   {
     "questionNumber": 32,
-    "question": "An organization recently updated its security policy to include the following statement: 14 Regular expressions are included in source code to remove special characters such as $, |, ;. &, `, and ? from variables set by forms in a web application. Which of the following best explains the security technique the organization adopted by making this addition to the policy?",
+    "question": "An organization recently updated its security policy to include the following statement: Regular expressions are included in source code to remove special characters such as $, |, ;. &, `, and ? from variables set by forms in a web application. Which of the following best explains the security technique the organization adopted by making this addition to the policy?",
     "options": {
       "A": "Identify embedded keys",
       "B": "Code debugging",
@@ -670,7 +679,7 @@
   },
   {
     "questionNumber": 34,
-    "question": "Which of the following has been implemented when a host-based firewall on a legacy Linux system allows connections from only specific internal IP addresses? 15",
+    "question": "Which of the following has been implemented when a host-based firewall on a legacy Linux system allows connections from only specific internal IP addresses?",
     "options": {
       "A": "Compensating control",
       "B": "Network segmentation",
@@ -694,7 +703,7 @@
   },
   {
     "questionNumber": 36,
-    "question": "A company is planning to set up a SIEM system and assign an analyst to review the logs on a weekly basis. Which of the following types of controls is the company setting up? 16",
+    "question": "A company is planning to set up a SIEM system and assign an analyst to review the logs on a weekly basis. Which of the following types of controls is the company setting up?",
     "options": {
       "A": "Corrective",
       "B": "Preventive",
@@ -863,7 +872,7 @@
       "A": "Creating a firewall rule to allow HTTPS traffic",
       "B": "Configuring the IPS to allow shopping",
       "C": "Tuning the DLP rule that detects credit card data",
-      "D": "Updating the categorization in the content filter 32"
+      "D": "Updating the categorization in the content filter"
     },
     "answer": "D",
     "explanation": "A content filter is a device or software that blocks or allows access to web content based on predefined rules or categories. In this case, the new retail website is mistakenly categorized as gambling by the content filter, which prevents users from accessing it. To resolve this issue, the content filter's categorization needs to be updated to reflect the correct category of the website, such as shopping or retail. This will allow the content filter to allow access to the website instead of blocking it."
@@ -894,7 +903,7 @@
   },
   {
     "questionNumber": 55,
-    "question": "A company would like to provide employees with computers that do not have access to the 33 internet in order to prevent information from being leaked to an online forum. Which of the following would be best for the systems administrator to implement?",
+    "question": "A company would like to provide employees with computers that do not have access to the internet in order to prevent information from being leaked to an online forum. Which of the following would be best for the systems administrator to implement?",
     "options": {
       "A": "Air gap",
       "B": "Jump server",
@@ -992,7 +1001,7 @@
   },
   {
     "questionNumber": 63,
-    "question": "An administrator assists the legal and compliance team with ensuring information about customer transactions is archived for the proper time period. Which of the following data policies is the administrator carrying out? 36",
+    "question": "An administrator assists the legal and compliance team with ensuring information about customer transactions is archived for the proper time period. Which of the following data policies is the administrator carrying out?",
     "options": {
       "A": "Compromise",
       "B": "Retention",
@@ -1060,7 +1069,7 @@
       "C": "Badge access",
       "D": "Access control vestibule",
       "E": "Sign-in sheet",
-      "F": "Sensor 38"
+      "F": "Sensor"
     },
     "answer": "CD",
     "explanation": "Badge access and access control vestibule are two of the best ways to ensure only authorized personnel can access a secure facility. Badge access requires the personnel to present a valid and authenticated badge to a reader or scanner that grants or denies access based on predefined rules and permissions. Access control vestibule is a physical security measure that consists of a small room or chamber with two doors, one leading to the outside and one leading to the secure area. The personnel must enter the vestibule and wait for the first door to close and lock before the second door can be opened. This prevents tailgating or piggybacking by unauthorized individuals."
@@ -1090,7 +1099,7 @@
   },
   {
     "questionNumber": 71,
-    "question": "After a recent ransomware attack on a company's system, an administrator reviewed the log files. Which of the following control types did the administrator use? 39",
+    "question": "After a recent ransomware attack on a company's system, an administrator reviewed the log files. Which of the following control types did the administrator use?",
     "options": {
       "A": "Compensating",
       "B": "Detective",
@@ -1154,7 +1163,7 @@
     "options": {
       "A": "Code scanning for vulnerabilities",
       "B": "Open-source component usage",
-      "C": "Quality assurance testing 41",
+      "C": "Quality assurance testing",
       "D": "Peer review and approval"
     },
     "answer": "D",
@@ -1186,7 +1195,7 @@
   },
   {
     "questionNumber": 79,
-    "question": "A Chief Information Security Officer (CISO) wants to explicitly raise awareness about the increase of ransomware-as-a-service in a report to the management team. Which of the following best describes the threat actor in the CISO's report? 42",
+    "question": "A Chief Information Security Officer (CISO) wants to explicitly raise awareness about the increase of ransomware-as-a-service in a report to the management team. Which of the following best describes the threat actor in the CISO's report?",
     "options": {
       "A": "Insider threat",
       "B": "Hacktivist",
@@ -1240,7 +1249,7 @@
       "A": "EAP",
       "B": "DHCP",
       "C": "IPSec",
-      "D": "NAT 44"
+      "D": "NAT"
     },
     "answer": "C",
     "explanation": "IPSec is a protocol suite that provides secure communication over IP networks. IPSec can be used to create virtual private networks (VPNs) that encrypt and authenticate the data exchanged between two or more parties. IPSec can also provide data integrity, confidentiality, replay protection, and access control. A security consultant can use IPSec to gain secure, remote access to a client environment by establishing a VPN tunnel with the client's network."
@@ -1273,7 +1282,7 @@
     "questionNumber": 86,
     "question": "After a security awareness training session, a user called the IT help desk and reported a suspicious call. The suspicious caller stated that the Chief Financial Officer wanted credit card information in order to close an invoice. Which of the following topics did the user recognize from the training?",
     "options": {
-      "A": "Insider threat 45",
+      "A": "Insider threat",
       "B": "Email phishing",
       "C": "Social engineering",
       "D": "Executive whaling"
@@ -1307,7 +1316,7 @@
   },
   {
     "questionNumber": 89,
-    "question": "A newly identified network access vulnerability has been found in the OS of legacy IoT devices. Which of the following would best mitigate this vulnerability quickly? 46",
+    "question": "A newly identified network access vulnerability has been found in the OS of legacy IoT devices. Which of the following would best mitigate this vulnerability quickly?",
     "options": {
       "A": "Insurance",
       "B": "Patching",
@@ -1367,7 +1376,7 @@
   },
   {
     "questionNumber": 94,
-    "question": "An organization would like to store customer data on a separate part of the network that is not accessible to users on the main corporate network. Which of the following should the 48 administrator use to accomplish this goal?",
+    "question": "An organization would like to store customer data on a separate part of the network that is not accessible to users on the main corporate network. Which of the following should the administrator use to accomplish this goal?",
     "options": {
       "A": "Segmentation",
       "B": "Isolation",
@@ -1405,7 +1414,7 @@
     "question": "Which of the following security concepts is the best reason for permissions on a human resources fileshare to follow the principle of least privilege?",
     "options": {
       "A": "Integrity",
-      "B": "Availability 49",
+      "B": "Availability",
       "C": "Confidentiality",
       "D": "Non-repudiation"
     },
@@ -1453,7 +1462,7 @@
     "question": "An organization is struggling with scaling issues on its VPN concentrator and internet circuit due to remote work. The organization is looking for a software solution that will allow it to reduce traffic on the VPN and internet circuit, while still providing encrypted tunnel access to the data center and monitoring of remote employee internet traffic. Which of the following will help achieve these objectives?",
     "options": {
       "A": "Deploying a SASE solution to remote employees",
-      "B": "Building a load-balanced VPN solution with redundant internet 51",
+      "B": "Building a load-balanced VPN solution with redundant internet",
       "C": "Purchasing a low-cost SD-WAN solution for VPN traffic",
       "D": "Using a cloud provider to create additional VPN concentrators"
     },
@@ -1537,7 +1546,7 @@
     "question": "An enterprise has been experiencing attacks focused on exploiting vulnerabilities in older browser versions with well-known exploits. Which of the following security solutions should be configured to best provide the ability to monitor and block these known signature-based attacks?",
     "options": {
       "A": "ACL",
-      "B": "DLP 54",
+      "B": "DLP",
       "C": "IDS",
       "D": "IPS"
     },
@@ -1560,7 +1569,7 @@
   },
   {
     "questionNumber": 110,
-    "question": "An administrator is reviewing a single server's security logs and discovers the following; 55 Which of the following best describes the action captured in this log file?",
+    "question": "An administrator is reviewing a single server's security logs and discovers the following; Which of the following best describes the action captured in this log file?",
     "options": {
       "A": "Brute-force attack",
       "B": "Privilege escalation",
@@ -1572,7 +1581,7 @@
   },
   {
     "questionNumber": 111,
-    "question": "A security engineer is implementing FDE for all laptops in an organization. Which of the following are the most important for the engineer to consider as part of the planning process? (Select two). 56",
+    "question": "A security engineer is implementing FDE for all laptops in an organization. Which of the following are the most important for the engineer to consider as part of the planning process? (Select two).",
     "options": {
       "A": "Key escrow",
       "B": "TPM presence",
@@ -1636,7 +1645,7 @@
     "questionNumber": 116,
     "question": "An enterprise is trying to limit outbound DNS traffic originating from its internal network. Outbound DNS requests will only be allowed from one device with the IP address 10.50.10.25. Which of the following firewall ACLs will accomplish this goal?",
     "options": {
-      "A": "Access list outbound permit 0.0.0.0 0 0.0.0.0/0 port 53 58 Access list outbound deny 10.50.10.25 32 0.0.0.0/0 port 53",
+      "A": "Access list outbound permit 0.0.0.0 0 0.0.0.0/0 port 53 Access list outbound deny 10.50.10.25 32 0.0.0.0/0 port 53",
       "B": "Access list outbound permit 0.0.0.0/0 10.50.10.25 32 port 53 Access list outbound deny 0.0.0.0 0 0.0.0.0/0 port 53",
       "C": "Access list outbound permit 0.0.0.0 0 0.0.0.0/0 port 53 Access list outbound deny 0.0.0.0/0 10.50.10.25 32 port 53",
       "D": "Access list outbound permit 10.50.10.25 32 0.0.0.0/0 port 53 Access list outbound deny 0.0.0.0.0.0.0.0.0/0 port 53"
@@ -1719,7 +1728,7 @@
   },
   {
     "questionNumber": 123,
-    "question": "Several employees received a fraudulent text message from someone claiming to be the Chief Executive Officer (CEO). The message stated: 61 \"I'm in an airport right now with no access to email. I need you to buy gift cards for employee recognition awards. Please send the gift cards to following email address.\" Which of the following are the best responses to this situation? (Choose two).",
+    "question": "Several employees received a fraudulent text message from someone claiming to be the Chief Executive Officer (CEO). The message stated: \"I'm in an airport right now with no access to email. I need you to buy gift cards for employee recognition awards. Please send the gift cards to following email address.\" Which of the following are the best responses to this situation? (Choose two).",
     "options": {
       "A": "Cancel current employee recognition gift cards.",
       "B": "Add a smishing exercise to the annual company training.",
@@ -1855,7 +1864,7 @@
   },
   {
     "questionNumber": 134,
-    "question": "Which of the following provides the details about the terms of a test with a third-party penetration tester? 65",
+    "question": "Which of the following provides the details about the terms of a test with a third-party penetration tester?",
     "options": {
       "A": "Rules of engagement",
       "B": "Supply chain analysis",
@@ -1891,7 +1900,7 @@
   },
   {
     "questionNumber": 137,
-    "question": "Which of the following vulnerabilities is associated with installing software outside of a manufacturer's approved software repository? 66",
+    "question": "Which of the following vulnerabilities is associated with installing software outside of a manufacturer's approved software repository?",
     "options": {
       "A": "Jailbreaking",
       "B": "Memory injection",
@@ -1953,7 +1962,7 @@
     "questionNumber": 142,
     "question": "During a security incident, the security operations team identified sustained network traffic from a malicious IP address: 10.1.4.9. A security analyst is creating an inbound firewall rule to block the IP address from accessing the organization's network. Which of the following fulfills this request?",
     "options": {
-      "A": "access-list inbound deny ip source 0.0.0.0/0 destination 10.1.4.9/32 68",
+      "A": "access-list inbound deny ip source 0.0.0.0/0 destination 10.1.4.9/32",
       "B": "access-list inbound deny ip source 10.1.4.9/32 destination 0.0.0.0/0",
       "C": "access-list inbound permit ip source 10.1.4.9/32 destination 0.0.0.0/0",
       "D": "access-list inbound permit ip source 0.0.0.0/0 destination 10.1.4.9/32"
@@ -1991,7 +2000,7 @@
     "options": {
       "A": "Disaster recovery plan",
       "B": "Incident response procedure",
-      "C": "Business continuity plan 69",
+      "C": "Business continuity plan",
       "D": "Change management procedure"
     },
     "answer": "D"
@@ -2236,7 +2245,7 @@
     "options": {
       "A": "SSO",
       "B": "CHAP",
-      "C": "802.1x 76",
+      "C": "802.1x",
       "D": "OpenID"
     },
     "answer": "D",
@@ -2273,7 +2282,7 @@
       "A": "Attribute-based",
       "B": "Time of day",
       "C": "Role-based",
-      "D": "Least privilege 77"
+      "D": "Least privilege"
     },
     "answer": "D",
     "explanation": "The least privilege principle states that users and processes should only have the minimum level of access required to perform their tasks. This helps to prevent unauthorized or unnecessary actions that could compromise security. In this case, the patch transfer might be failing because the user or process does not have the appropriate permissions to access the critical system or the network resources needed for the transfer. Applying the least privilege principle can help to avoid this issue by granting the user or process the necessary access rights for the patching activity."
@@ -2332,7 +2341,7 @@
     "options": {
       "A": "A worm is propagating across the network.",
       "B": "Data is being exfiltrated.",
-      "C": "A logic bomb is deleting data. 79",
+      "C": "A logic bomb is deleting data.",
       "D": "Ransomware is encrypting files."
     },
     "answer": "B",
@@ -2392,7 +2401,7 @@
     "questionNumber": 178,
     "question": "Visitors to a secured facility are required to check in with a photo ID and enter the facility through an access control vestibule Which of the following but describes this form of security control?",
     "options": {
-      "A": "Physical 81",
+      "A": "Physical",
       "B": "Managerial",
       "C": "Technical",
       "D": "Operational"
@@ -2450,7 +2459,7 @@
   },
   {
     "questionNumber": 183,
-    "question": "Which of the following teams combines both offensive and defensive testing techniques to protect an organization's critical systems? 83",
+    "question": "Which of the following teams combines both offensive and defensive testing techniques to protect an organization's critical systems?",
     "options": {
       "A": "Red",
       "B": "Blue",
@@ -2514,7 +2523,7 @@
     "question": "Which of the following is the best way to secure an on-site data center against intrusion from an insider?",
     "options": {
       "A": "Bollards",
-      "B": "Access badge 85",
+      "B": "Access badge",
       "C": "Motion sensor",
       "D": "Video surveillance"
     },
@@ -2630,7 +2639,7 @@
     "question": "A security administrator is reissuing a former employee's laptop. Which of the following is the best combination of data handling activities for the administrator to perform? (Choose two.)",
     "options": {
       "A": "Data retention",
-      "B": "Certification 88",
+      "B": "Certification",
       "C": "Destruction",
       "D": "Classification",
       "E": "Sanitization",
@@ -2667,7 +2676,7 @@
     "options": {
       "A": "Full disk encryption",
       "B": "Network access control",
-      "C": "File integrity monitoring 89",
+      "C": "File integrity monitoring",
       "D": "User behavior analytics"
     },
     "answer": "C"
@@ -2723,7 +2732,7 @@
   },
   {
     "questionNumber": 206,
-    "question": "An enterprise is working with a third party and needs to allow access between the internal networks of both parties for a secure file migration. The solution needs to ensure encryption is applied to all traffic that is traversing the networks. Which of the following solutions should most 91 likely be implemented?",
+    "question": "An enterprise is working with a third party and needs to allow access between the internal networks of both parties for a secure file migration. The solution needs to ensure encryption is applied to all traffic that is traversing the networks. Which of the following solutions should most likely be implemented?",
     "options": {
       "A": "EAP",
       "B": "IPSec",
@@ -2760,7 +2769,7 @@
     "question": "An organization wants to limit potential impact to its log-in database in the event of a breach. Which of the following options is the security team most likely to recommend?",
     "options": {
       "A": "Tokenization",
-      "B": "Hashing 92",
+      "B": "Hashing",
       "C": "Obfuscation",
       "D": "Segmentation"
     },
@@ -2796,7 +2805,7 @@
       "A": "Recovery point objective",
       "B": "Mean time between failures",
       "C": "Recovery time objective",
-      "D": "Mean time to repair 93"
+      "D": "Mean time to repair"
     },
     "answer": "D",
     "explanation": "Mean time to repair (MTTR) describes the time needed to resolve a hardware issue with a server. MTTR is a key metric in risk management and maintenance that measures the average time required to repair a failed component or system and restore it to operational status. Recovery point objective (RPO): Defines the maximum acceptable amount of data loss measured in time. It is the point in time to which data must be restored after a disaster. Mean time between failures (MTBF): Measures the average time between failures of a system or component, indicating reliability. Recovery time objective (RTO): Defines the maximum acceptable length of time to restore a system after a disaster or disruption. Mean time to repair (MTTR): Measures the average time required to repair a failed component or system."
@@ -2935,7 +2944,7 @@
   },
   {
     "questionNumber": 224,
-    "question": "An accounting clerk sent money to an attacker's bank account after receiving fraudulent instructions to use a new account. Which of the following would most likely prevent this activity in 98 the future?",
+    "question": "An accounting clerk sent money to an attacker's bank account after receiving fraudulent instructions to use a new account. Which of the following would most likely prevent this activity in the future?",
     "options": {
       "A": "Standardizing security incident reporting",
       "B": "Executing regular phishing campaigns",
@@ -2964,7 +2973,7 @@
       "A": "Log aggregation",
       "B": "DLP",
       "C": "Archiving",
-      "D": "SCAP 99"
+      "D": "SCAP"
     },
     "answer": "A",
     "explanation": "Configuring devices to log to an off-site location for possible future reference is best described as log aggregation. Log aggregation involves collecting logs from multiple sources and storing them in a centralized location, often off-site, to ensure they are preserved and can be analyzed in the future. Log aggregation: Centralizes log data from multiple devices, making it easier to analyze and ensuring logs are available for future reference. DLP (Data Loss Prevention): Focuses on preventing unauthorized data transfer and ensuring data security. Archiving: Involves storing data for long-term retention, which could be part of log aggregation but is broader in scope. SCAP (Security Content Automation Protocol): A standard for automating vulnerability management and policy compliance."
@@ -3019,7 +3028,7 @@
   },
   {
     "questionNumber": 231,
-    "question": "101 A manager receives an email that contains a link to receive a refund. After hovering over the link, the manager notices that the domain's URL points to a suspicious link. Which of the following security practices helped the manager to identify the attack?",
+    "question": "A manager receives an email that contains a link to receive a refund. After hovering over the link, the manager notices that the domain's URL points to a suspicious link. Which of the following security practices helped the manager to identify the attack?",
     "options": {
       "A": "End user training",
       "B": "Policy review",
@@ -3069,7 +3078,7 @@
   },
   {
     "questionNumber": 235,
-    "question": "An organization maintains intellectual property that it wants to protect. Which of the following concepts would be most beneficial to add to the company's security awareness training program? 103",
+    "question": "An organization maintains intellectual property that it wants to protect. Which of the following concepts would be most beneficial to add to the company's security awareness training program?",
     "options": {
       "A": "Insider threat detection",
       "B": "Simulated threats",
@@ -3095,7 +3104,7 @@
     "questionNumber": 237,
     "question": "A security administrator identifies an application that is storing data using MD5. Which of the following best identifies the vulnerability likely present in the application?",
     "options": {
-      "A": "Cryptographic 104",
+      "A": "Cryptographic",
       "B": "Malicious update",
       "C": "Zero day",
       "D": "Side loading"
@@ -3122,7 +3131,7 @@
       "A": "CIA",
       "B": "AAA",
       "C": "ACL",
-      "D": "PEM 105"
+      "D": "PEM"
     },
     "answer": "B",
     "explanation": "The installation of a RADIUS server (Remote Authentication Dial-In User Service) is primarily associated with the security concept of AAA, which stands for Authentication, Authorization, and Accounting. RADIUS servers are used to manage user credentials and permissions centrally, ensuring that only authenticated and authorized users can access network resources, and tracking user activity for accounting purposes. Authentication: Verifies the identity of a user or device. When a user tries to access a network, the RADIUS server checks their credentials (username and password) against a database. Authorization: Determines what an authenticated user is allowed to do. After authentication, the RADIUS server grants permissions based on predefined policies. Accounting: Tracks the consumption of network resources by users. This involves logging session details such as the duration of connections and the amount of data transferred."
@@ -3230,7 +3239,7 @@
       "A": "Privilege escalation",
       "B": "Buffer overflow",
       "C": "SQL injection",
-      "D": "Pass-the-hash 109"
+      "D": "Pass-the-hash"
     },
     "answer": "D",
     "explanation": "The scenario describes an attacker who obtained credentials from a compromised system's memory and used them without cracking to move laterally within the network. This technique is known as a \"pass-the-hash\" attack, where the attacker captures hashed credentials (e.g., NTLM hashes) and uses them to authenticate and gain access to other systems without needing to know the plaintext password. This is a common attack method in environments where weak security practices or outdated protocols are in use."
@@ -3267,7 +3276,7 @@
       "B": "Hybrid cloud",
       "C": "Private cloud",
       "D": "IaaS",
-      "E": "SaaS 110"
+      "E": "SaaS"
     },
     "answer": "E",
     "explanation": "Software as a Service (SaaS) represents an application that is hosted in the cloud and accessible via the internet from anywhere, with no requirement for on-premises infrastructure. SaaS applications are managed by a third-party provider, allowing users to access them through a web browser, making them highly scalable and flexible for remote access."
@@ -3298,7 +3307,7 @@
   },
   {
     "questionNumber": 254,
-    "question": "An administrator is Investigating an incident and discovers several users' computers were 111 Infected with malware after viewing files mat were shared with them. The administrator discovers no degraded performance in the infected machines and an examination of the log files does not show excessive failed logins. Which of the following attacks Is most likely the cause of the malware?",
+    "question": "An administrator is Investigating an incident and discovers several users' computers were Infected with malware after viewing files mat were shared with them. The administrator discovers no degraded performance in the infected machines and an examination of the log files does not show excessive failed logins. Which of the following attacks Is most likely the cause of the malware?",
     "options": {
       "A": "Malicious flash drive",
       "B": "Remote access Trojan",
@@ -3360,7 +3369,7 @@
   },
   {
     "questionNumber": 259,
-    "question": "A security analyst discovers that a large number of employee credentials had been stolen and were being sold on the dark web. The analyst investigates and discovers that some hourly employee credentials were compromised, but salaried employee credentials were not affected. Most employees clocked in and out while they were Inside the building using one of the kiosks connected to the network. However, some clocked out and recorded their time after leaving to go home. Only those who clocked in and out while Inside the building had credentials stolen. Each of the kiosks are on different floors, and there are multiple routers, since the business segments environments for certain business functions. Hourly employees are required to use a website called acmetimekeeping.com to clock in and out. This website is accessible from the internet. Which of the following Is the most likely reason for this compromise? 113",
+    "question": "A security analyst discovers that a large number of employee credentials had been stolen and were being sold on the dark web. The analyst investigates and discovers that some hourly employee credentials were compromised, but salaried employee credentials were not affected. Most employees clocked in and out while they were Inside the building using one of the kiosks connected to the network. However, some clocked out and recorded their time after leaving to go home. Only those who clocked in and out while Inside the building had credentials stolen. Each of the kiosks are on different floors, and there are multiple routers, since the business segments environments for certain business functions. Hourly employees are required to use a website called acmetimekeeping.com to clock in and out. This website is accessible from the internet. Which of the following Is the most likely reason for this compromise?",
     "options": {
       "A": "A brute-force attack was used against the time-keeping website to scan for common passwords.",
       "B": "A malicious actor compromised the time-keeping website with malicious code using an unpatched vulnerability on the site, stealing the credentials.",
@@ -3494,7 +3503,7 @@
     "questionNumber": 270,
     "question": "Sine?a recent upgrade (o a WLAN infrastructure, several mobile users have been unable to access the internet from the lobby. The networking team performs a heat map survey of the building and finds several WAPs in the area. The WAPs are using similar frequencies with high power settings. Which of the following installation considerations should the security team evaluate next?",
     "options": {
-      "A": "Channel overlap 117",
+      "A": "Channel overlap",
       "B": "Encryption type",
       "C": "New WLAN deployment",
       "D": "WAP placement"
@@ -3530,7 +3539,7 @@
   },
   {
     "questionNumber": 273,
-    "question": "118 A security analyst is assessing several company firewalls. Which of the following cools would The analyst most likely use to generate custom packets to use during the assessment?",
+    "question": "A security analyst is assessing several company firewalls. Which of the following cools would The analyst most likely use to generate custom packets to use during the assessment?",
     "options": {
       "A": "hping",
       "B": "Wireshark",
@@ -3566,7 +3575,7 @@
   },
   {
     "questionNumber": 276,
-    "question": "Which of the following is the most effective way to protect an application server running software that is no longer supported from network threats? 119",
+    "question": "Which of the following is the most effective way to protect an application server running software that is no longer supported from network threats?",
     "options": {
       "A": "Air gap",
       "B": "Barricade",
@@ -3602,7 +3611,7 @@
   },
   {
     "questionNumber": 279,
-    "question": "An IT security team is concerned about the confidentiality of documents left unattended in MFPs. 120 Which of the following should the security team do to mitigate the situation?",
+    "question": "An IT security team is concerned about the confidentiality of documents left unattended in MFPs. Which of the following should the security team do to mitigate the situation?",
     "options": {
       "A": "Educate users about the importance of paper shredder devices.",
       "B": "Deploy an authentication factor that requires ln-person action before printing.",
@@ -3700,7 +3709,7 @@
   },
   {
     "questionNumber": 287,
-    "question": "A website user is locked out of an account after clicking an email link and visiting a different website Web server logs show the user's password was changed, even though the user did not change the password. Which of the following is the most likely cause? 123",
+    "question": "A website user is locked out of an account after clicking an email link and visiting a different website Web server logs show the user's password was changed, even though the user did not change the password. Which of the following is the most likely cause?",
     "options": {
       "A": "Cross-sue request forgery",
       "B": "Directory traversal",
@@ -3736,7 +3745,7 @@
   },
   {
     "questionNumber": 290,
-    "question": "Which of the following is a reason why a forensic specialist would create a plan to preserve data after an modem and prioritize the sequence for performing forensic analysis? 124",
+    "question": "Which of the following is a reason why a forensic specialist would create a plan to preserve data after an modem and prioritize the sequence for performing forensic analysis?",
     "options": {
       "A": "Order of volatility",
       "B": "Preservation of event logs",
@@ -3772,7 +3781,7 @@
   },
   {
     "questionNumber": 293,
-    "question": "A security administrator recently reset local passwords and the following values were recorded in the system: 125 Which of the following in the security administrator most likely protecting against?",
+    "question": "A security administrator recently reset local passwords and the following values were recorded in the system: Which of the following in the security administrator most likely protecting against?",
     "options": {
       "A": "Account sharing",
       "B": "Weak password complexity",
@@ -3803,7 +3812,7 @@
       "A": "Owner",
       "B": "Custodian",
       "C": "Steward",
-      "D": "Controller 126"
+      "D": "Controller"
     },
     "answer": "A",
     "explanation": "The data owner is the role responsible for identifying risks to data and determining who should have access to that data. The owner has the authority to make decisions about the protection and usage of the data, including setting access controls and ensuring that appropriate security measures are in place."
@@ -3834,7 +3843,7 @@
   },
   {
     "questionNumber": 298,
-    "question": "The security operations center is researching an event concerning a suspicious IP address. A security analyst looks at the following event logs and discovers that a significant portion of the user accounts have experienced failed log-in attempts when authenticating from the same IP address: 127 Which of the following most likely describes the attack that took place?",
+    "question": "The security operations center is researching an event concerning a suspicious IP address. A security analyst looks at the following event logs and discovers that a significant portion of the user accounts have experienced failed log-in attempts when authenticating from the same IP address: Which of the following most likely describes the attack that took place?",
     "options": {
       "A": "Spraying",
       "B": "Brute-force",
@@ -3897,7 +3906,7 @@
     "question": "Which of the following best describe why a process would require a two-person integrity security control?",
     "options": {
       "A": "To Increase the chance that the activity will be completed in half of the time the process would take only one user to complete",
-      "B": "To permit two users from another department to observe the activity that is being performed by an authorized user 129",
+      "B": "To permit two users from another department to observe the activity that is being performed by an authorized user",
       "C": "To reduce the risk that the procedures are performed incorrectly or by an unauthorized user",
       "D": "To allow one person to perform the activity while being recorded on the CCTV camera"
     },
@@ -3930,7 +3939,7 @@
   },
   {
     "questionNumber": 306,
-    "question": "An organization has too many variations of a single operating system and needs to standardize the arrangement prior to pushing the system image to users. Which of the following should the organization implement first? 130",
+    "question": "An organization has too many variations of a single operating system and needs to standardize the arrangement prior to pushing the system image to users. Which of the following should the organization implement first?",
     "options": {
       "A": "Standard naming convention",
       "B": "Mashing",
@@ -3992,7 +4001,7 @@
   },
   {
     "questionNumber": 311,
-    "question": "A security analyst finds a rogue device during a monthly audit of current endpoint assets that are connected to the network. The corporate network utilizes 002.1X for access control. To be allowed on the network, a device must have a Known hardware address, and a valid user name and password must be entered in a captive portal. The following is the audit report: 132 Which of the following is the most likely way a rogue device was allowed to connect?",
+    "question": "A security analyst finds a rogue device during a monthly audit of current endpoint assets that are connected to the network. The corporate network utilizes 002.1X for access control. To be allowed on the network, a device must have a Known hardware address, and a valid user name and password must be entered in a captive portal. The following is the audit report: Which of the following is the most likely way a rogue device was allowed to connect?",
     "options": {
       "A": "A user performed a MAC cloning attack with a personal device.",
       "B": "A DMCP failure caused an incorrect IP address to be distributed",
@@ -4088,7 +4097,7 @@
   },
   {
     "questionNumber": 319,
-    "question": "Which of the following describes the understanding between a company and a client about what 135 will be provided and the accepted time needed to provide the company with the resources?",
+    "question": "Which of the following describes the understanding between a company and a client about what will be provided and the accepted time needed to provide the company with the resources?",
     "options": {
       "A": "SLA",
       "B": "MOU",
@@ -4151,7 +4160,7 @@
     "question": "A user would like to install software and features that are not available with a smartphone's default software. Which of the following would allow the user to install unauthorized software and enable new features?",
     "options": {
       "A": "SOU",
-      "B": "Cross-site scripting 137",
+      "B": "Cross-site scripting",
       "C": "Jailbreaking",
       "D": "Side loading"
     },
@@ -4213,7 +4222,7 @@
       "A": "Monitor",
       "B": "Sensor",
       "C": "Audit",
-      "D": "Active 139"
+      "D": "Active"
     },
     "answer": "D",
     "explanation": "To block signature-based attacks, the Intrusion Prevention System (IPS) must be in active mode. In this mode, the IPS can actively monitor and block malicious traffic in real time based on predefined signatures. This is the best mode to prevent known attack types from reaching the internal network. Monitor mode and sensor mode are typically passive, meaning they only observe and log traffic without actively blocking it. Audit mode is used for review purposes and does not actively block traffic."
@@ -4333,7 +4342,7 @@
       "A": "Hot",
       "B": "Cold",
       "C": "Warm",
-      "D": "Geographically dispersed 143"
+      "D": "Geographically dispersed"
     },
     "answer": "C",
     "explanation": "A warm site is the best option for a business that does not require immediate failover but wants to reduce the workload required for recovery. A warm site has some pre-installed equipment and data, allowing for quicker recovery than a cold site, but it still requires some setup before becoming fully operational. Hot sites provide immediate failover but are more expensive and require constant maintenance. Cold sites require significant time and effort to get up and running after an outage. Geographically dispersed sites refer to a specific location strategy rather than the readiness of the recovery site."
@@ -4424,7 +4433,7 @@
   },
   {
     "questionNumber": 347,
-    "question": "A systems administrator notices that one of the systems critical for processing customer 146 transactions is running an end-of-life operating system. Which of the following techniques would increase enterprise security?",
+    "question": "A systems administrator notices that one of the systems critical for processing customer transactions is running an end-of-life operating system. Which of the following techniques would increase enterprise security?",
     "options": {
       "A": "Installing HIDS on the system",
       "B": "Placing the system in an isolated VLAN",
@@ -4453,7 +4462,7 @@
       "A": "To track the status of patching installations",
       "B": "To find shadow IT cloud deployments",
       "C": "To continuously the monitor hardware inventory",
-      "D": "To hunt for active attackers in the network 147"
+      "D": "To hunt for active attackers in the network"
     },
     "answer": "A",
     "explanation": "Running daily vulnerability scans on all corporate endpoints is primarily done to track the status of patching installations. These scans help identify any missing security patches or vulnerabilities that could be exploited by attackers. Keeping the endpoints up-to-date with the latest patches is critical for maintaining security. Finding shadow IT cloud deployments and monitoring hardware inventory are better achieved through other tools. Hunting for active attackers would typically involve more real-time threat detection methods than daily vulnerability scans."
@@ -4511,7 +4520,7 @@
     "question": "Which of the following security measures is required when using a cloud-based platform for IoT management?",
     "options": {
       "A": "Encrypted connection",
-      "B": "Federated identity 149",
+      "B": "Federated identity",
       "C": "Firewall",
       "D": "Single sign-on"
     },
@@ -4555,7 +4564,7 @@
   },
   {
     "questionNumber": 358,
-    "question": "150 A Chief Information Security Officer would like to conduct frequent, detailed reviews of systems and procedures to track compliance objectives. Which of the following will be the best method to achieve this objective?",
+    "question": "A Chief Information Security Officer would like to conduct frequent, detailed reviews of systems and procedures to track compliance objectives. Which of the following will be the best method to achieve this objective?",
     "options": {
       "A": "Third-party attestation",
       "B": "Penetration testing",
@@ -4823,7 +4832,7 @@
     "question": "A coffee shop owner wants to restrict internet access to only paying customers by prompting them for a receipt number. Which of the following is the best method to use given this requirement?",
     "options": {
       "A": "WPA3",
-      "B": "Captive portal 157",
+      "B": "Captive portal",
       "C": "PSK",
       "D": "IEEE 802.1X"
     },
@@ -4892,7 +4901,7 @@
   },
   {
     "questionNumber": 386,
-    "question": "A security team has been alerted to a flood of incoming emails that have various subject lines and are addressed to multiple email inboxes. Each email contains a URL shortener link that is redirecting to a dead domain. Which of the following is the best step for the security team to take? 159",
+    "question": "A security team has been alerted to a flood of incoming emails that have various subject lines and are addressed to multiple email inboxes. Each email contains a URL shortener link that is redirecting to a dead domain. Which of the following is the best step for the security team to take?",
     "options": {
       "A": "Create a blocklist for all subject lines.",
       "B": "Send the dead domain to a DNS sinkhole.",
@@ -4976,7 +4985,7 @@
     "questionNumber": 393,
     "question": "An architect has a request to increase the speed of data transfer using JSON requests externally. Currently, the organization uses SFTP to transfer data files. Which of the following will most likely meet the requirements?",
     "options": {
-      "A": "A website-hosted solution 161",
+      "A": "A website-hosted solution",
       "B": "Cloud shared storage",
       "C": "A secure email solution",
       "D": "Microservices using API"
@@ -5086,7 +5095,7 @@
     "question": "A company wants to reduce the time and expense associated with code deployment. Which of the following technologies should the company utilize?",
     "options": {
       "A": "Serverless architecture",
-      "B": "Thin clients 164",
+      "B": "Thin clients",
       "C": "Private cloud",
       "D": "Virtual machines"
     },
@@ -5122,7 +5131,7 @@
     "question": "Which of the following best describes a social engineering attack that uses a targeted electronic messaging campaign aimed at a Chief Executive Officer?",
     "options": {
       "A": "Whaling",
-      "B": "Spear phishing 165",
+      "B": "Spear phishing",
       "C": "Impersonation",
       "D": "Identity fraud"
     },
@@ -5161,7 +5170,7 @@
       "B": "SAML",
       "C": "An SSO platform",
       "D": "Role-based access control",
-      "E": "PAM software 166"
+      "E": "PAM software"
     },
     "answer": "E",
     "explanation": "PAM software helps manage and secure privileged accounts and access credentials. It allows admins to grant temporary, controlled access to critical systems without sharing passwords directly. PAM software can track, monitor and log all activities performed by the consultant."
@@ -5280,7 +5289,7 @@
       "A": "CVE",
       "B": "OSINT",
       "C": "SOAR",
-      "D": "CVSS 169"
+      "D": "CVSS"
     },
     "answer": "D"
   },
@@ -5311,7 +5320,7 @@
   },
   {
     "questionNumber": 421,
-    "question": "A security analyst is reviewing the logs on an organization's DNS server and notices the following unusual snippet: 170 Which of the following attack techniques was most likely used?",
+    "question": "A security analyst is reviewing the logs on an organization's DNS server and notices the following unusual snippet: Which of the following attack techniques was most likely used?",
     "options": {
       "A": "Determining the organization's ISP-assigned address space",
       "B": "Bypassing the organization's DNS sinkholing",
@@ -5338,7 +5347,7 @@
   },
   {
     "questionNumber": 423,
-    "question": "A security team is addressing a risk associated with the attack surface of the organization's web application over port 443. Currently, no advanced network security capabilities are in place. Which of the following would be best to set up? (Choose two.) 171",
+    "question": "A security team is addressing a risk associated with the attack surface of the organization's web application over port 443. Currently, no advanced network security capabilities are in place. Which of the following would be best to set up? (Choose two.)",
     "options": {
       "A": "NIDS",
       "B": "Honeypot",
@@ -5380,7 +5389,7 @@
       "A": "Sanitization",
       "B": "Formatting",
       "C": "Degaussing",
-      "D": "Defragmentation 172"
+      "D": "Defragmentation"
     },
     "answer": "A",
     "explanation": "Sanitization is the process of removing sensitive data from a storage device in a manner that ensures the data cannot be recovered while allowing device to be reused. This involves methods like overwriting the data with zeros or other patterns multiple times."
@@ -5416,7 +5425,7 @@
       "A": "DDoS attack",
       "B": "Rogue employee",
       "C": "Insider threat",
-      "D": "Supply chain 173"
+      "D": "Supply chain"
     },
     "answer": "D"
   },
@@ -5458,7 +5467,7 @@
   },
   {
     "questionNumber": 433,
-    "question": "A security analyst is reviewing the source code of an application in order to identify misconfigurations and vulnerabilities. Which of the following kinds of analysis best describes this 174 review?",
+    "question": "A security analyst is reviewing the source code of an application in order to identify misconfigurations and vulnerabilities. Which of the following kinds of analysis best describes this review?",
     "options": {
       "A": "Dynamic",
       "B": "Static",
@@ -5499,7 +5508,7 @@
       "A": "Tokenization",
       "B": "Masking",
       "C": "Hashing",
-      "D": "Obfuscation 175"
+      "D": "Obfuscation"
     },
     "answer": "B",
     "explanation": "Masking involves altering the credit card information in such a way that it is not easily readable or identifiable while still retaining some format or structure for processing or display purposes. This is particularly useful for ensuring sensitive data is protected in log files or other records."
@@ -5523,7 +5532,7 @@
       "A": "Service-level agreements",
       "B": "Information security policy",
       "C": "Penetration testing methodology",
-      "D": "Branch protection requirements 179"
+      "D": "Branch protection requirements"
     },
     "answer": "D",
     "explanation": "Branch protection requirements are related to the version control and development process within the SDLC, ensuring that code changes are reviewed, tested, and approved before being merged into main branches. This helps maintain code quality and security throughout the development process. Penetration testing is usually conducted as part of the testing phase or after deployment to identify vulnerabilities and security weaknesses. It is a separate process from the core stages of the SDLC but is an important aspect of ensuring the security and robustness of the application once development is completed."
@@ -5554,7 +5563,7 @@
   },
   {
     "questionNumber": 442,
-    "question": "A company's online shopping website became unusable shortly after midnight on January 30, 2023. When a security analyst reviewed the database server, the analyst noticed the following code used for backing up data: 180 Which of the following should the analyst do next?",
+    "question": "A company's online shopping website became unusable shortly after midnight on January 30, 2023. When a security analyst reviewed the database server, the analyst noticed the following code used for backing up data: Which of the following should the analyst do next?",
     "options": {
       "A": "Check for recently terminated DBAs.",
       "B": "Review WAF logs for evidence of command injection.",
@@ -5590,7 +5599,7 @@
   },
   {
     "questionNumber": 445,
-    "question": "A company relies on open-source software libraries to build the software used by its customers. 181 Which of the following vulnerability types would be the most difficult to remediate due to the company's reliance on open-source libraries?",
+    "question": "A company relies on open-source software libraries to build the software used by its customers. Which of the following vulnerability types would be the most difficult to remediate due to the company's reliance on open-source libraries?",
     "options": {
       "A": "Buffer overflow",
       "B": "SQL injection",
@@ -5626,7 +5635,7 @@
   },
   {
     "questionNumber": 448,
-    "question": "An organization plans to expand its operations internationally and needs to keep data at the new location secure. The organization wants to use the most secure architecture model possible. Which of the following models offers the highest level of security? 182",
+    "question": "An organization plans to expand its operations internationally and needs to keep data at the new location secure. The organization wants to use the most secure architecture model possible. Which of the following models offers the highest level of security?",
     "options": {
       "A": "Cloud-based",
       "B": "Peer-to-peer",
@@ -5710,7 +5719,7 @@
   },
   {
     "questionNumber": 455,
-    "question": "184 An administrator must replace an expired SSL certificate. Which of the following does the administrator need to create the new SSL certificate?",
+    "question": "An administrator must replace an expired SSL certificate. Which of the following does the administrator need to create the new SSL certificate?",
     "options": {
       "A": "CSR",
       "B": "OCSP",
@@ -5749,7 +5758,7 @@
     "question": "Which of the following is a type of vulnerability that involves inserting scripts into web-based applications in order to take control of the client's web browser?",
     "options": {
       "A": "SQL injection",
-      "B": "Cross-site scripting 185",
+      "B": "Cross-site scripting",
       "C": "Zero-day exploit",
       "D": "On-path attack"
     },
@@ -5770,7 +5779,7 @@
   },
   {
     "questionNumber": 460,
-    "question": "A penetration test has demonstrated that domain administrator accounts were vulnerable to passthe- hash attacks. Which of the following would have been the best strategy to prevent the threat actor from using domain administrator accounts? 186",
+    "question": "A penetration test has demonstrated that domain administrator accounts were vulnerable to passthe- hash attacks. Which of the following would have been the best strategy to prevent the threat actor from using domain administrator accounts?",
     "options": {
       "A": "Audit each domain administrator account weekly for password compliance.",
       "B": "Implement a privileged access management solution.",
@@ -5810,7 +5819,7 @@
     "options": {
       "A": "Behavioral analytics",
       "B": "Access control lists",
-      "C": "Identity and access management 187",
+      "C": "Identity and access management",
       "D": "Network intrusion detection system"
     },
     "answer": "A",
@@ -5892,7 +5901,7 @@
   },
   {
     "questionNumber": 470,
-    "question": "189 Which of the following is the best way to validate the integrity and availability of a disaster recovery site?",
+    "question": "Which of the following is the best way to validate the integrity and availability of a disaster recovery site?",
     "options": {
       "A": "Lead a simulated failover.",
       "B": "Conduct a tabletop exercise.",
@@ -5933,7 +5942,7 @@
       "A": "Hackers' ability to obtain data from used hard drives",
       "B": "Devices reaching end-of-life and losing support",
       "C": "Disclosure of sensitive data through incorrect classification",
-      "D": "Incorrect inventory data leading to a laptop shortage 190"
+      "D": "Incorrect inventory data leading to a laptop shortage"
     },
     "answer": "A",
     "explanation": "Proper data sanitization ensures that sensitive data is securely erased from storage devices, preventing unauthorized access or recovery when the devices are disposed of or reused."
@@ -5976,7 +5985,7 @@
   },
   {
     "questionNumber": 477,
-    "question": "A security analyst learns that an attack vector, used as part of a recent incident, was a well 191 known IoT device exploit. The analyst needs to review logs to identify the time of the initial exploit. Which of the following logs should the analyst review first?",
+    "question": "A security analyst learns that an attack vector, used as part of a recent incident, was a well known IoT device exploit. The analyst needs to review logs to identify the time of the initial exploit. Which of the following logs should the analyst review first?",
     "options": {
       "A": "Endpoint",
       "B": "Application",
@@ -6016,7 +6025,7 @@
     "options": {
       "A": "Data sovereignty",
       "B": "Geolocation",
-      "C": "Intellectual property 192",
+      "C": "Intellectual property",
       "D": "Geographic restrictions"
     },
     "answer": "A",
@@ -6060,7 +6069,7 @@
   },
   {
     "questionNumber": 484,
-    "question": "193 A systems administrator receives a text message from an unknown number claiming to be the Chief Executive Officer of the company. The message states an emergency situation requires a password reset. Which of the following threat vectors is being used?",
+    "question": "A systems administrator receives a text message from an unknown number claiming to be the Chief Executive Officer of the company. The message states an emergency situation requires a password reset. Which of the following threat vectors is being used?",
     "options": {
       "A": "Typosquatting",
       "B": "Smishing",
@@ -6099,7 +6108,7 @@
     "question": "Which of the following types of vulnerabilities is primarily caused by improper use and management of cryptographic certificates?",
     "options": {
       "A": "Misconfiguration",
-      "B": "Resource reuse 194",
+      "B": "Resource reuse",
       "C": "Insecure key storage",
       "D": "Weak cipher suites"
     },
@@ -6139,7 +6148,7 @@
       "A": "Role-based",
       "B": "Time-of-day restrictions",
       "C": "Least privilege",
-      "D": "Biometric authentication 195"
+      "D": "Biometric authentication"
     },
     "answer": "B",
     "explanation": "Time-of-day restrictions limit access to corporate systems based on predefined schedules. This ensures employees can only access resources during their assigned work hours."
@@ -6182,7 +6191,7 @@
   },
   {
     "questionNumber": 494,
-    "question": "Various company stakeholders meet to discuss roles and responsibilities in the event of a 196 security breach affecting offshore offices. Which of the following is this an example of?",
+    "question": "Various company stakeholders meet to discuss roles and responsibilities in the event of a security breach affecting offshore offices. Which of the following is this an example of?",
     "options": {
       "A": "Tabletop exercise",
       "B": "Penetration test",
@@ -6314,7 +6323,7 @@
   },
   {
     "questionNumber": 507,
-    "question": "A systems administrator is concerned about vulnerabilities within cloud computing instances. 202 Which of the following is most important for the administrator to consider when architecting a cloud computing environment?",
+    "question": "A systems administrator is concerned about vulnerabilities within cloud computing instances. Which of the following is most important for the administrator to consider when architecting a cloud computing environment?",
     "options": {
       "A": "SQL injection",
       "B": "TOC/TOU",
@@ -6351,7 +6360,7 @@
   },
   {
     "questionNumber": 510,
-    "question": "An employee used a company's billing system to issue fraudulent checks. The administrator is 203 looking for evidence of other occurrences of this activity. Which of the following should the administrator examine?",
+    "question": "An employee used a company's billing system to issue fraudulent checks. The administrator is looking for evidence of other occurrences of this activity. Which of the following should the administrator examine?",
     "options": {
       "A": "Application logs",
       "B": "Vulnerability scanner logs",
@@ -6443,7 +6452,7 @@
     "questionNumber": 518,
     "question": "A company installed cameras and added signs to alert visitors that they are being recorded. Which of the following controls did the company implement? (Choose two.)",
     "options": {
-      "A": "Directive 205",
+      "A": "Directive",
       "B": "Deterrent",
       "C": "Preventive",
       "D": "Detective",
@@ -6490,7 +6499,7 @@
     "questionNumber": 522,
     "question": "Which of the following activities is included in the post-incident review phase?",
     "options": {
-      "A": "Determining the root cause of the incident 206",
+      "A": "Determining the root cause of the incident",
       "B": "Developing steps to mitigate the risks of the incident",
       "C": "Validating the accuracy of the evidence collected during the investigation",
       "D": "Reestablishing the compromised system's configuration and settings"
@@ -6621,7 +6630,7 @@
   },
   {
     "questionNumber": 534,
-    "question": "A new security regulation was announced that will take effect in the coming year. A company must comply with it to remain in business. Which of the following activities should the company 209 perform next?",
+    "question": "A new security regulation was announced that will take effect in the coming year. A company must comply with it to remain in business. Which of the following activities should the company perform next?",
     "options": {
       "A": "Gap analysis",
       "B": "Policy review",
@@ -6669,7 +6678,7 @@
     "options": {
       "A": "It increases complexity.",
       "B": "It removes technical debt.",
-      "C": "It adds additional guard rails. 210",
+      "C": "It adds additional guard rails.",
       "D": "It acts as a workforce multiplier."
     },
     "answer": "D"
@@ -6709,7 +6718,7 @@
   },
   {
     "questionNumber": 542,
-    "question": "While reviewing logs, a security administrator identifies the following code: Which of the following best describes the vulnerability being exploited? 211",
+    "question": "While reviewing logs, a security administrator identifies the following code: Which of the following best describes the vulnerability being exploited?",
     "options": {
       "A": "XSS",
       "B": "SQLi",
@@ -6754,7 +6763,7 @@
   },
   {
     "questionNumber": 546,
-    "question": "An IT administrator needs to ensure data retention standards are implemented on an enterprise application. Which of the following describes the administrator's role? 212",
+    "question": "An IT administrator needs to ensure data retention standards are implemented on an enterprise application. Which of the following describes the administrator's role?",
     "options": {
       "A": "Processor",
       "B": "Custodian",
@@ -6800,7 +6809,7 @@
   },
   {
     "questionNumber": 550,
-    "question": "A network administrator wants to ensure that network traffic is highly secure while in transit. 213 Which of the following actions best describes the actions the network administrator should take?",
+    "question": "A network administrator wants to ensure that network traffic is highly secure while in transit. Which of the following actions best describes the actions the network administrator should take?",
     "options": {
       "A": "Ensure that NAC is enforced on all network segments, and confirm that firewalls have updated policies to block unauthorized traffic.",
       "B": "Ensure only TLS and other encrypted protocols are selected for use on the network, and only permit authorized traffic via secure protocols.",
@@ -6844,7 +6853,7 @@
   },
   {
     "questionNumber": 554,
-    "question": "A malicious insider from the marketing team alters records and transfers company funds to a 214 personal account. Which of the following methods would be the best way to secure company records in the future?",
+    "question": "A malicious insider from the marketing team alters records and transfers company funds to a personal account. Which of the following methods would be the best way to secure company records in the future?",
     "options": {
       "A": "Permission restrictions",
       "B": "Hashing",
@@ -6888,7 +6897,7 @@
   },
   {
     "questionNumber": 558,
-    "question": "A security analyst attempts to start a company's database server. When the server starts, the analyst receives an error message indicating the database server did not pass authentication. After reviewing and testing the system, the analyst receives confirmation that the server has been compromised and that attackers have redirected all outgoing database traffic to a server under their control. Which of the following MITRE ATT&CK techniques did the attacker most likely use 215 to redirect database traffic?",
+    "question": "A security analyst attempts to start a company's database server. When the server starts, the analyst receives an error message indicating the database server did not pass authentication. After reviewing and testing the system, the analyst receives confirmation that the server has been compromised and that attackers have redirected all outgoing database traffic to a server under their control. Which of the following MITRE ATT&CK techniques did the attacker most likely use to redirect database traffic?",
     "options": {
       "A": "Browser extension",
       "B": "Process injection",
@@ -6932,7 +6941,7 @@
   },
   {
     "questionNumber": 562,
-    "question": "A customer of a large company receives a phone call from someone claiming to work for the company and asking for the customer's credit card information. The customer sees the caller ID is the same as the company's main phone number. Which of the following attacks is the customer most likely a target of? 216",
+    "question": "A customer of a large company receives a phone call from someone claiming to work for the company and asking for the customer's credit card information. The customer sees the caller ID is the same as the company's main phone number. Which of the following attacks is the customer most likely a target of?",
     "options": {
       "A": "Phishing",
       "B": "Whaling",
@@ -6980,7 +6989,7 @@
     "options": {
       "A": "Familiarizing participants with the incident response process",
       "B": "Deciding red and blue team rules of engagement",
-      "C": "Quickly determining the impact of an actual security breach 217",
+      "C": "Quickly determining the impact of an actual security breach",
       "D": "Conducting multiple security investigations in parallel"
     },
     "answer": "A"
@@ -7027,7 +7036,7 @@
       "C": "Encrypting sensitive data at rest and in transit",
       "D": "Utilizing a web-application firewall",
       "E": "Performing regular vulnerability scans",
-      "F": "Removing payment information from the servers 218"
+      "F": "Removing payment information from the servers"
     },
     "answer": "AD"
   },
@@ -7071,7 +7080,7 @@
       "A": "Analyze firewall and network logs for large amounts of outbound traffic to external IP addresses or domains.",
       "B": "Analyze IPS and IDS logs to find the IP addresses used by the attacker for reconnaissance scans.",
       "C": "Analyze endpoint and application logs to see whether file-sharing programs were running on the company systems.",
-      "D": "Analyze external vulnerability scans and automated reports to identify the systems the attacker could have exploited a remote code vulnerability. 219"
+      "D": "Analyze external vulnerability scans and automated reports to identify the systems the attacker could have exploited a remote code vulnerability."
     },
     "answer": "A"
   },
@@ -7121,7 +7130,7 @@
   },
   {
     "questionNumber": 579,
-    "question": "220 Which of the following activities is the first stage in the incident response process?",
+    "question": "Which of the following activities is the first stage in the incident response process?",
     "options": {
       "A": "Detection",
       "B": "Declaration",
@@ -7167,7 +7176,7 @@
   },
   {
     "questionNumber": 583,
-    "question": "A security administrator observed the following in a web server log while investigating an incident: \"GET ../../../../etc/passwd\" Which of the following attacks did the security administrator most likely see? 221",
+    "question": "A security administrator observed the following in a web server log while investigating an incident: \"GET ../../../../etc/passwd\" Which of the following attacks did the security administrator most likely see?",
     "options": {
       "A": "Privilege escalation",
       "B": "Credential replay",
@@ -7215,7 +7224,7 @@
     "options": {
       "A": "$7,500",
       "B": "$10,000",
-      "C": "$15,000 222",
+      "C": "$15,000",
       "D": "$30,000"
     },
     "answer": "B"
@@ -7260,7 +7269,7 @@
       "A": "Detective",
       "B": "Preventive",
       "C": "Corrective",
-      "D": "Directive 223"
+      "D": "Directive"
     },
     "answer": "A"
   },
@@ -7304,7 +7313,7 @@
     "question": "An employee clicks a malicious link in an email that appears to be from the company's Chief Executive Officer. The employee's computer is infected with ransomware that encrypts the company's files. Which of the following is the most effective way for the company to prevent similar incidents in the future?",
     "options": {
       "A": "Security awareness training",
-      "B": "Database encryption 224",
+      "B": "Database encryption",
       "C": "Segmentation",
       "D": "Reporting suspicious emails"
     },
@@ -7347,7 +7356,7 @@
   },
   {
     "questionNumber": 599,
-    "question": "A security administrator documented the following records during an assessment of network services: 225 Two weeks later, the administrator performed a log review and noticed the records were changed as follows: When consulting the service owner, the administrator validated that the new address was not part of the company network. Which of the following was the company most likely experiencing?",
+    "question": "A security administrator documented the following records during an assessment of network services: Two weeks later, the administrator performed a log review and noticed the records were changed as follows: When consulting the service owner, the administrator validated that the new address was not part of the company network. Which of the following was the company most likely experiencing?",
     "options": {
       "A": "DDoS attack",
       "B": "DNS poisoning",
@@ -7380,7 +7389,7 @@
   },
   {
     "questionNumber": 602,
-    "question": "A company that has a large IT operation is looking to better control, standardize, and lower the time required to build new servers. Which of the following architectures will best achieve the 226 company's objectives?",
+    "question": "A company that has a large IT operation is looking to better control, standardize, and lower the time required to build new servers. Which of the following architectures will best achieve the company's objectives?",
     "options": {
       "A": "IoT",
       "B": "IaC",
@@ -7428,7 +7437,7 @@
     "options": {
       "A": "Snapshots",
       "B": "On-site backups",
-      "C": "Journaling 227",
+      "C": "Journaling",
       "D": "Hot site"
     },
     "answer": "D"
@@ -7474,7 +7483,7 @@
       "A": "URL scanning",
       "B": "WAF",
       "C": "Reverse proxy",
-      "D": "NAC 228"
+      "D": "NAC"
     },
     "answer": "B"
   },
@@ -7524,7 +7533,7 @@
   },
   {
     "questionNumber": 616,
-    "question": "A company discovers suspicious transactions that were entered into the company's database and 232 attached to a user account that was created as a trap for malicious activity. Which of the following is the user account an example of?",
+    "question": "A company discovers suspicious transactions that were entered into the company's database and attached to a user account that was created as a trap for malicious activity. Which of the following is the user account an example of?",
     "options": {
       "A": "Honeytoken",
       "B": "Honeynet",
@@ -7568,7 +7577,7 @@
   },
   {
     "questionNumber": 620,
-    "question": "An analyst is reviewing job postings to ensure sensitive company information is not being shared with the general public. Which of the following is the analyst most likely looking for? 233",
+    "question": "An analyst is reviewing job postings to ensure sensitive company information is not being shared with the general public. Which of the following is the analyst most likely looking for?",
     "options": {
       "A": "Office addresses",
       "B": "Software versions",
@@ -7616,7 +7625,7 @@
     "options": {
       "A": "Anti-malware solutions",
       "B": "Host-based firewalls",
-      "C": "Intrusion prevention systems 234",
+      "C": "Intrusion prevention systems",
       "D": "Network access control",
       "E": "Network allow list"
     },
@@ -7661,7 +7670,7 @@
     "options": {
       "A": "SOAR",
       "B": "SIEM",
-      "C": "DMARC 235",
+      "C": "DMARC",
       "D": "NIDS"
     },
     "answer": "A"
@@ -7705,7 +7714,7 @@
     "options": {
       "A": "MDM",
       "B": "Containerization",
-      "C": "DLP 236",
+      "C": "DLP",
       "D": "FIM"
     },
     "answer": "A"
@@ -7800,7 +7809,7 @@
   },
   {
     "questionNumber": 641,
-    "question": "Which of the following cryptographic solutions is used to hide the fact that communication is 238 occurring?",
+    "question": "Which of the following cryptographic solutions is used to hide the fact that communication is occurring?",
     "options": {
       "A": "Steganography",
       "B": "Data masking",
@@ -7848,7 +7857,7 @@
     "options": {
       "A": "Typosquatting",
       "B": "Brand impersonation",
-      "C": "On-path 239",
+      "C": "On-path",
       "D": "Watering-hole"
     },
     "answer": "A"
@@ -7893,7 +7902,7 @@
       "A": "SLA",
       "B": "BPA",
       "C": "NDA",
-      "D": "MOA 240"
+      "D": "MOA"
     },
     "answer": "C"
   },
@@ -7989,7 +7998,7 @@
     "questionNumber": 658,
     "question": "Which of the following is the stage in an investigating when forensic images are obtained?",
     "options": {
-      "A": "Acquisition 242",
+      "A": "Acquisition",
       "B": "Preservation",
       "C": "Reporting",
       "D": "E-discovery"
@@ -8034,7 +8043,7 @@
     "question": "A security analyst created a fake account and saved the password in a non-readily accessible directory in a spreadsheet. An alert was also configured to notify the security team if the spreadsheet is opened. Which of the following best describes the deception method being deployed?",
     "options": {
       "A": "Honeypot",
-      "B": "Honeyfile 243",
+      "B": "Honeyfile",
       "C": "Honeytoken",
       "D": "Honeynet"
     },
@@ -8163,7 +8172,7 @@
   },
   {
     "questionNumber": 674,
-    "question": "A security analyst needs to improve the company's authentication policy following a password audit. Which of the following should be included in the policy? (Choose two.) 246",
+    "question": "A security analyst needs to improve the company's authentication policy following a password audit. Which of the following should be included in the policy? (Choose two.)",
     "options": {
       "A": "Length",
       "B": "Complexity",
@@ -8212,7 +8221,7 @@
     "question": "The internal audit team determines a software application is no longer in scope for external reporting requirements. Which of the following will confirm that the application is no longer applicable?",
     "options": {
       "A": "Data inventory and retention",
-      "B": "Right to be forgotten 247",
+      "B": "Right to be forgotten",
       "C": "Due care and due diligence",
       "D": "Acknowledgement and attestation"
     },
@@ -8312,7 +8321,7 @@
     "questionNumber": 687,
     "question": "An engineer needs to ensure that a script has not been modified before it is launched. Which of the following best provides this functionality?",
     "options": {
-      "A": "Masking 249",
+      "A": "Masking",
       "B": "Obfuscation",
       "C": "Hashing",
       "D": "Encryption"
@@ -8359,7 +8368,7 @@
       "A": "Unskilled attacker",
       "B": "Shadow IT",
       "C": "Insider threat",
-      "D": "Nation-state 250"
+      "D": "Nation-state"
     },
     "answer": "C"
   },
@@ -8403,7 +8412,7 @@
       "A": "Authentication tokens",
       "B": "Least privilege",
       "C": "Biometrics",
-      "D": "LDAP 251",
+      "D": "LDAP",
       "E": "Password vaulting",
       "F": "SAML"
     },
@@ -8448,7 +8457,7 @@
     "options": {
       "A": "Hardware security module",
       "B": "Hashing algorithm",
-      "C": "Tokenization 252",
+      "C": "Tokenization",
       "D": "Steganography"
     },
     "answer": "C"
@@ -8490,7 +8499,7 @@
     "questionNumber": 703,
     "question": "A company is concerned about employees unintentionally introducing malware into the network. The company identified fifty employees who clicked on a link embedded in an email sent by the internal IT department. Which of the following should the company implement to best improve its security posture?",
     "options": {
-      "A": "Social engineering training 253",
+      "A": "Social engineering training",
       "B": "SPF configuration",
       "C": "Simulated phishing campaign",
       "D": "Insider threat awareness"
@@ -8555,6 +8564,35 @@
   }
 ]
         
+        // 總複習按鈕功能
+        function startGeneralReviewQuiz() {
+            // 依 generalReview 陣列選出題目
+            const availableNumbers = allQuestions.map(q => q.questionNumber);
+            // 過濾掉不存在的題號
+            const reviewNumbers = generalReview.filter(num => availableNumbers.includes(num));
+            if (reviewNumbers.length === 0) {
+                alert('總複習題目不存在於目前題庫！');
+                return;
+            }
+            // 隨機排序
+            const shuffled = [...reviewNumbers];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            // 設定隨機模式
+            isRandomMode = true;
+            randomQuestionNumbers = shuffled;
+            selectedRange = null;
+            // 顯示選擇資訊
+            const infoDiv = document.getElementById('selected-range-info');
+            const infoText = document.getElementById('selected-range-text');
+            infoText.textContent = `總複習 ${shuffled.length} 題（題號: ${shuffled.slice(0, 5).join(', ')}${shuffled.length > 5 ? '...' : ''}）`;
+            infoDiv.style.display = 'block';
+            // 啟用開始按鈕
+            document.getElementById('start-quiz-button').disabled = false;
+        }
+
         // 檢測是否為多選題
         function isMultipleChoiceQuestion(question) {
             // 檢查是否為多選題：答案長度大於1，或題目中包含選擇提示
@@ -8597,8 +8635,19 @@
                 
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('range-selector').style.display = 'block';
+                // 顯示首頁注意說明
+                const warnDiv = document.getElementById('not-in-database-warning');
+                if (warnDiv) warnDiv.style.display = '';
+                // 動態填入 notQuestNumber
+                const notList = document.getElementById('not-in-database-list');
+                if (notList) notList.textContent = `[${notQuestNumber.join(', ')}]`;
                 
                 setupRangeOptions();
+                // 綁定總複習按鈕
+                const reviewBtn = document.getElementById('general-review-btn');
+                if (reviewBtn) {
+                    reviewBtn.onclick = startGeneralReviewQuiz;
+                }
             } catch (error) {
                 console.error('載入問題失敗:', error);
                 document.getElementById('loading').innerHTML = `
@@ -8752,6 +8801,9 @@
             // 切換到答題介面
             document.getElementById('range-selector').style.display = 'none';
             document.getElementById('quiz-container').style.display = 'block';
+            // 隱藏首頁注意說明
+            const warnDiv = document.getElementById('not-in-database-warning');
+            if (warnDiv) warnDiv.style.display = 'none';
             
             // 設定範圍顯示
             const rangeDisplay = document.getElementById('current-range-display');
@@ -8781,6 +8833,9 @@
             document.getElementById('quiz-container').style.display = 'none';
             document.getElementById('results-container').style.display = 'none';
             document.getElementById('range-selector').style.display = 'block';
+            // 回首頁時顯示注意說明
+            const warnDiv = document.getElementById('not-in-database-warning');
+            if (warnDiv) warnDiv.style.display = '';
             
             // 清除選擇狀態
             document.querySelectorAll('.range-button').forEach(btn => {
