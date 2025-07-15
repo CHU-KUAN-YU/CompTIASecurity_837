@@ -4,7 +4,7 @@
 
 ## 🚀 線上使用
 
-直接訪問：[https://你的用戶名.github.io/STU](https://你的用戶名.github.io/STU)
+直接訪問：[https://chu-kuan-yu.github.io/CompTIASecurity_837/index_click.html]
 
 ## ✨ 功能特色
 
