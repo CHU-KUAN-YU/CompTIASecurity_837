@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刷題系統 - 全部題目統計</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        h1 { text-align: center; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        
+        /* 答題介面樣式 */
+        .quiz-interface { display: none; }
+        .question-header { margin-bottom: 10px; font-size: 16px; color: #666; font-weight: bold; }
+        .question { margin-bottom: 20px; font-size: 24px; }
+        .options { margin-bottom: 20px; }
+        .option-button { 
+            display: block; 
+            width: 100%; 
+            padding: 15px;
+            margin: 5px 0; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 18px;
+            background-color: #e0e0e0;
+            color: black;
+            text-align: left;
+        }
+        .option-button:hover { background-color: #d0d0d0; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; }
+        .nav-buttons button { 
+            padding: 10px 15px; 
+            border: none; 
+            border-radius: 5px; 
+            background-color: #007bff;
+            color: white; 
+            cursor: pointer; 
+            font-size: 16px;
+            width: 30%;
+        }
+        .nav-buttons button:hover { background-color: #0056b3; }
+        .nav-buttons button:disabled { 
+            background-color: #cccccc; 
+            cursor: not-allowed; 
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #007bff;
+            transition: width 0.3s ease;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+        .range-info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #007bff;
+        }
+        .random-indicator {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 400% 400%;
+            animation: gradientShift 3s ease infinite;
+            color: white;
+            font-weight: bold;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>刷題系統 - 全部題目統計</h1>
+        <div id="loading" class="loading" style="display:none;">載入題目中...</div>
+        <!-- 答題介面 -->
+        <div id="quiz-container" class="quiz-interface">
+            <div class="stats">
+                <div>進度: <span id="current-question">1</span> / <span id="total-questions">0</span></div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="question-header" id="question-header">題目 1</div>
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options"></div>
+            <div class="nav-buttons" style="justify-content:center; gap:30px; margin-top:30px;">
+                <button id="markExamButton" onclick="markExam()" style="width:40%;background-color:#007bff;color:#fff;font-size:18px;">有考</button>
+                <button id="skipButton" onclick="skipExam()" style="width:40%;background-color:#ccc;color:#333;font-size:18px;">略過</button>
+            </div>
+        </div>
+        <!-- 結果頁面 -->
+        <div id="results-container" class="quiz-interface">
+            <div class="range-info">
+                <strong>🎉 統計完成！</strong>
+            </div>
+            <div class="stats" style="justify-content: center; gap: 30px; font-size: 20px; margin: 30px 0;">
+                <div>總題數: <span id="results-total">0</span></div>
+                <div>有考: <span id="results-exam" style="color: #007bff;">0</span></div>
+            </div>
+            <div style="margin: 20px 0;">
+                <h3>📊 有考題目列表</h3>
+                <div id="results-details" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 15px;"></div>
+            </div>
+            <div style="margin: 20px 0;">
+                <h3>📋 有考題號（可複製）</h3>
+                <div id="exam-numbers-block" style="background:#f8f9fa;padding:10px 15px;border-radius:5px;margin-bottom:10px;font-size:18px;"></div>
+                <button onclick="copyExamNumbers()" style="background:#007bff;color:#fff;padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-size:16px;">複製題號</button>
+                <span id="copy-success" style="color:#28a745;margin-left:10px;display:none;">已複製！</span>
+            </div>
+            <div class="nav-buttons" style="justify-content: center;">
+                <button onclick="retryQuiz()" style="width: 60%; background-color: #28a745;">重新統計</button>
+            </div>
+        </div>
+    </div>
+    <script>
+let allQuestions = [];
+let currentQuestionIndex = 0;
+let examQuestions = [];
+let questionsAry = [
+  {
+    "questionNumber": 1,
+    "question": "A security analyst is reviewing alerts in the SIEM related to potential malicious network traffic coming from an employee's corporate laptop. The security analyst has determined that additional data about the executable running on the machine is necessary to continue the investigation. Which of the following logs should the analyst use as a data source?",
+    "options": {
+      "A": "Application",
+      "B": "IPS/IDS",
+      "C": "Network",
+      "D": "Endpoint"
+    },
+    "answer": "D",
+    "explanation": "Endpoint logs are the most suitable data source for gathering additional information about the executable running on the employee's corporate laptop. These logs contain detailed information about processes, executables, and activities occurring on the endpoint, enabling the security analyst to understand the behavior of the executable and its potential impact on the system and network."
+  },
+  {
+    "questionNumber": 2,
+    "question": "A cyber operations team informs a security analyst about a new tactic malicious actors are using to compromise networks. SIEM alerts have not yet been configured. Which of the following best describes what the security analyst should do to identify this behavior?",
+    "options": {
+      "A": "Digital forensics",
+      "B": "E-discovery",
+      "C": "Incident response",
+      "D": "Threat hunting"
+    },
+    "answer": "D",
+    "explanation": "Threat hunting is the process of proactively searching for signs of malicious activity or compromise in a network, rather than waiting for alerts or indicators of compromise (IOCs) to appear. Threat hunting can help identify new tactics, techniques, and procedures (TTPs) used by malicious actors, as well as uncover hidden or stealthy threats that may have evaded detection by security tools. Threat hunting requires a combination of skills, tools, and methodologies, such as hypothesis generation, data collection and analysis, threat intelligence, and incident response. Threat hunting can also help improve the security posture of an organization by providing feedback and recommendations for security improvements."
+  },
+  {
+    "questionNumber": 3,
+    "question": "A company purchased cyber insurance to address items listed on the risk register. Which of the following strategies does this represent?",
+    "options": {
+      "A": "Accept",
+      "B": "Transfer",
+      "C": "Mitigate",
+      "D": "Avoid"
+    },
+    "answer": "B",
+    "explanation": "Transfer: Transferring a risk involves shifting some or all of the risk to another party, such as an insurance provider, through contractual agreements or financial arrangements. If the company purchases cyber insurance to address items listed on the risk register, it represents a risk transfer strategy. The company is transferring the financial burden of potential cyber incidents to the insurance provider, who will compensate the company for covered losses. Given the scenario described, the strategy represented by the company's purchase of cyber insurance to address items listed on the risk register is Transfer. The company is transferring some of the financial consequences of potential cyber incidents to the insurance provider through the purchase of insurance coverage."
+  },
+  {
+    "questionNumber": 4,
+    "question": "A security administrator would like to protect data on employees' laptops. Which of the following encryption techniques should the security administrator use?",
+    "options": {
+      "A": "Partition",
+      "B": "Asymmetric",
+      "C": "Full disk",
+      "D": "Database"
+    },
+    "answer": "C",
+    "explanation": "Full disk encryption (FDE) encrypts all the data on a disk drive, protecting the data at rest on the entire laptop, including the operating system, applications, and user files. This ensures that if a laptop is lost or stolen, the data cannot be accessed without the correct decryption key."
+  },
+  {
+    "questionNumber": 5,
+    "question": "Which of the following security control types does an acceptable use policy best represent?",
+    "options": {
+      "A": "Detective",
+      "B": "Compensating",
+      "C": "Corrective",
+      "D": "Preventive"
+    },
+    "answer": "D",
+    "explanation": "Preventive - an acceptable use policy enforces rules to users to use company resources. example - company A states that in order to access files in the company server you must connect to your company VPN when working from home. This prevents you from connecting from an insecure network."
+  },
+  {
+    "questionNumber": 6,
+    "question": "An IT manager informs the entire help desk staff that only the IT manager and the help desk lead will have access to the administrator console of the help desk software. Which of the following security techniques is the IT manager setting up?",
+    "options": {
+      "A": "Hardening",
+      "B": "Employee monitoring",
+      "C": "Configuration enforcement",
+      "D": "Least privilege"
+    },
+    "answer": "D",
+    "explanation": "The principle of least privilege is a security concept that limits access to resources to the minimum level needed for a user, a program, or a device to perform a legitimate function. It is a cybersecurity best practice that protects high-value data and assets from compromise or insider threat. Least privilege can be applied to different abstraction layers of a computing environment, such as processes, systems, or connected devices. However, it is rarely implemented in practice. In this scenario, the IT manager is setting up the principle of least privilege by restricting access to the administrator console of the help desk software to only two authorized users: the IT manager and the help desk lead. This way, the IT manager can prevent unauthorized or accidental changes to the software configuration, data, or functionality by other help desk staff. The other help desk staff will only have access to the normal user interface of the software, which is sufficient for them to perform their job functions. The other options are not correct. Hardening is the process of securing a system by reducing its surface of vulnerability, such as by removing unnecessary software, changing default passwords, or disabling unnecessary services. Employee monitoring is the surveillance of workers' activity, such as by tracking web browsing, application use, keystrokes, or screenshots. Configuration enforcement is the process of ensuring that a system adheres to a predefined set of security settings, such as by applying a patch, a policy, or a template."
+  },
+  {
+    "questionNumber": 7,
+    "question": "Which of the following roles, according to the shared responsibility model, is responsible for securing the company's database in an IaaS model for a cloud environment?",
+    "options": {
+      "A": "Client",
+      "B": "Third-party vendor",
+      "C": "Cloud provider",
+      "D": "DBA"
+    },
+    "answer": "A",
+    "explanation": "According to the shared responsibility model, the client and the cloud provider have different roles and responsibilities for securing the cloud environment, depending on the service model. In an IaaS (Infrastructure as a Service) model, the cloud provider is responsible for securing the physical infrastructure, such as the servers, storage, and network devices, while the client is responsible for securing the operating systems, applications, and data that run on the cloud infrastructure. Therefore, the client is responsible for securing the company's database in an IaaS model for a cloud environment, as the database is an application that stores data. The client can use various security controls, such as encryption, access control, backup, and auditing, to protect the database from unauthorized access, modification, or loss. The third-party vendor and the DBA (Database Administrator) are not roles defined by the shared responsibility model, but they may be involved in the implementation or management of the database security."
+  },
+  {
+    "questionNumber": 8,
+    "question": "A client asked a security company to provide a document outlining the project, the cost, and the completion time frame. Which of the following documents should the company provide to the client?",
+    "options": {
+      "A": "MSA",
+      "B": "SLA",
+      "C": "BPA",
+      "D": "SOW"
+    },
+    "answer": "D",
+    "explanation": "An ISOW is a document that outlines the project, the cost, and the completion time frame for a security company to provide a service to a client. ISOW stands for Information Security Operations Work, and it is a type of contract that specifies the scope, deliverables, milestones, and payment terms of a security project. An ISOW is usually used for one-time or short-term projects that have a clear and defined objective and outcome. For example, an ISOW can be used for a security assessment, a penetration test, a security audit, or a security training. The other options are not correct because they are not documents that outline the project, the cost, and the completion time frame for a security company to provide a service to a client. A MSA is a master service agreement, which is a type of contract that establishes the general terms and conditions for a long-term or ongoing relationship between a security company and a client. A MSA does not specify the details of each individual project, but rather sets the framework for future projects that will be governed by separate statements of work (SOWs). A SLA is a service level agreement, which is a type of contract that defines the quality and performance standards for a security service provided by a security company to a client. A SLA usually includes the metrics, targets, responsibilities, and penalties for measuring and ensuring the service level. A BPA is a business partnership agreement, which is a type of contract that establishes the roles and expectations for a strategic alliance between two or more security companies that collaborate to provide a joint service to a client. A BPA usually covers the objectives, benefits, risks, and obligations of the partnership."
+  },
+  {
+    "questionNumber": 9,
+    "question": "A security team is reviewing the findings in a report that was delivered after a third party performed a penetration test. One of the findings indicated that a web application form field is vulnerable to cross-site scripting. Which of the following application security techniques should the security analyst recommend the developer implement to prevent this vulnerability?",
+    "options": {
+      "A": "Secure cookies",
+      "B": "Version control",
+      "C": "Input validation",
+      "D": "Code signing"
+    },
+    "answer": "C",
+    "explanation": "Input validation is a technique that checks the user input for any malicious or unexpected data before processing it by the web application. Input validation can prevent cross-site scripting (XSS) attacks, which exploit the vulnerability of a web application to execute malicious scripts in the browser of a victim. XSS attacks can compromise the confidentiality, integrity, and availability of the web application and its users. Input validation can be implemented on both the client-side and the server-side, but server-side validation is more reliable and secure. Input validation can use various methods, such as whitelisting, blacklisting, filtering, escaping, encoding, and sanitizing the input data."
+  },
+  {
+    "questionNumber": 10,
+    "question": "Which of the following must be considered when designing a high-availability network? (Choose two).",
+    "options": {
+      "A": "Ease of recovery",
+      "B": "Ability to patch",
+      "C": "Physical isolation",
+      "D": "Responsiveness",
+      "E": "Attack surface",
+      "F": "Extensible authentication"
+    },
+    "answer": "AD",
+    "explanation": "Ease of recovery: High-availability networks should be designed in a way that allows for quick and easy recovery in the event of a failure. Redundancy, failover mechanisms, and backup systems are some of the components that can help facilitate smooth recovery. Responsiveness: High-availability networks need to be responsive to ensure that any potential issues or failures are quickly detected, and appropriate actions are taken promptly to minimize downtime and impact."
+  },
+  {
+    "questionNumber": 11,
+    "question": "A technician needs to apply a high-priority patch to a production system. Which of the following steps should be taken first?",
+    "options": {
+      "A": "Air gap the system.",
+      "B": "Move the system to a different network segment.",
+      "C": "Create a change control request.",
+      "D": "Apply the patch to the system."
+    },
+    "answer": "C",
+    "explanation": "A change control request is a document that describes the proposed change to a system, the reason for the change, the expected impact, the approval process, the testing plan, the implementation plan, the rollback plan, and the communication plan. A change control request is a best practice for applying any patch to a production system, especially a high-priority one, as it ensures that the change is authorized, documented, tested, and communicated. A change control request also minimizes the risk of unintended consequences, such as system downtime, data loss, or security breaches."
+  },
+  {
+    "questionNumber": 12,
+    "question": "Which of the following describes the reason root cause analysis should be conducted as part of incident response?",
+    "options": {
+      "A": "To gather loCs for the investigation",
+      "B": "To discover which systems have been affected",
+      "C": "To eradicate any trace of malware on the network",
+      "D": "To prevent future incidents of the same nature"
+    },
+    "answer": "D",
+    "explanation": "Root cause analysis is a process of identifying and resolving the underlying factors that led to an incident. By conducting root cause analysis as part of incident response, security professionals can learn from the incident and implement corrective actions to prevent future incidents of the same nature. For example, if the root cause of a data breach was a weak password policy, the security team can enforce a stronger password policy and educate users on the importance of password security. Root cause analysis can also help to improve security processes, policies, and procedures, and to enhance security awareness and culture within the organization. Root cause analysis is not meant to gather loCs (indicators of compromise) for the investigation, as this is a task performed during the identification and analysis phases of incident response. Root cause analysis is also not meant to discover which systems have been affected or to eradicate any trace of malware on the network, as these are tasks performed during the containment and eradication phases of incident response."
+  },
+  {
+    "questionNumber": 13,
+    "question": "Which of the following is the most likely outcome if a large bank fails an internal PCI DSS compliance assessment?",
+    "options": {
+      "A": "Fines",
+      "B": "Audit findings",
+      "C": "Sanctions",
+      "D": "Reputation damage"
+    },
+    "answer": "A",
+    "explanation": "What are the consequences of not being PCI DSS compliant? The fines imposed by the Card Brands and Acquiring Banks on merchants for non-compliance can range from $5,000 to $100,000 per month. These fines, along with credit monitoring fees, can impose substantial financial strain on businesses, underscoring the necessity of abiding by the PCI DSS requirements."
+  },
+  {
+    "questionNumber": 14,
+    "question": "A company is developing a business continuity strategy and needs to determine how many staff members would be required to sustain the business in the case of a disruption. Which of the following best describes this step?",
+    "options": {
+      "A": "Capacity planning",
+      "B": "Redundancy",
+      "C": "Geographic dispersion",
+      "D": "Tablet exercise"
+    },
+    "answer": "A",
+    "explanation": "Capacity planning is the process of determining the resources needed to meet the current and future demands of an organization. Capacity planning can help a company develop a business continuity strategy by estimating how many staff members would be required to sustain the business in the case of a disruption, such as a natural disaster, a cyberattack, or a pandemic. Capacity planning can also help a company optimize the use of its resources, reduce costs, and improve performance."
+  },
+  {
+    "questionNumber": 15,
+    "question": "A company's legal department drafted sensitive documents in a SaaS application and wants to ensure the documents cannot be accessed by individuals in high-risk countries. Which of the following is the most effective way to limit this access?",
+    "options": {
+      "A": "Data masking",
+      "B": "Encryption",
+      "C": "Geolocation policy",
+      "D": "Data sovereignty regulation"
+    },
+    "answer": "C",
+    "explanation": "A geolocation policy is a policy that restricts or allows access to data or resources based on the geographic location of the user or device. A geolocation policy can be implemented using various methods, such as IP address filtering, GPS tracking, or geofencing. A geolocation policy can help the company's legal department to prevent unauthorized access to sensitive documents from individuals in high-risk countries."
+  },
+  {
+    "questionNumber": 16,
+    "question": "Which of the following is a hardware-specific vulnerability?",
+    "options": {
+      "A": "Firmware version",
+      "B": "Buffer overflow",
+      "C": "SQL injection",
+      "D": "Cross-site scripting"
+    },
+    "answer": "A",
+    "explanation": "Firmware is a type of software that is embedded in a hardware device, such as a router, a printer, or a BIOS chip. Firmware controls the basic functions and operations of the device, and it can be updated or modified by the manufacturer or the user. Firmware version is a hardware-specific vulnerability, as it can expose the device to security risks if it is outdated, corrupted, or tampered with. An attacker can exploit firmware vulnerabilities to gain unauthorized access, modify device settings, install malware, or cause damage to the device or the network. Therefore, it is important to keep firmware updated and verify its integrity and authenticity."
+  },
+  {
+    "questionNumber": 17,
+    "question": "While troubleshooting a firewall configuration, a technician determines that a \"deny any\" policy should be added to the bottom of the ACL. The technician updates the policy, but the new policy causes several company servers to become unreachable. Which of the following actions would prevent this issue?",
+    "options": {
+      "A": "Documenting the new policy in a change request and submitting the request to change management",
+      "B": "Testing the policy in a non-production environment before enabling the policy in the production network",
+      "C": "Disabling any intrusion prevention signatures on the 'deny any' policy prior to enabling the new policy",
+      "D": "Including an 'allow any1 policy above the 'deny any' policy"
+    },
+    "answer": "B"
+  },
+  {
+    "questionNumber": 18,
+    "question": "An organization is building a new backup data center with cost-benefit as the primary requirement and RTO and RPO values around two days. Which of the following types of sites is the best for this scenario?",
+    "options": {
+      "A": "Real-time recovery",
+      "B": "Hot",
+      "C": "Cold",
+      "D": "Warm"
+    },
+    "answer": "D",
+    "explanation": "Warm Sites - Not fully equipped, but fundamentals in place - Can be up and running within a few days - Cheaper than hot sites but with a slight delay Cold Sites - Fewer facilities than warm sites - May be just an empty building, ready in 1-2 months - Cost-effective but adds more recovery time"
+  },
+  
+];
+window.onload = function() {
+    allQuestions = questionsAry;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('quiz-container').style.display = 'block';
+    document.getElementById('results-container').style.display = 'none';
+    currentQuestionIndex = 0;
+    examQuestions = [];
+    document.getElementById('total-questions').textContent = allQuestions.length;
+    loadQuestion();
+};
+function loadQuestion() {
+    if (currentQuestionIndex >= allQuestions.length) {
+        showResults();
+        return;
+    }
+    const q = allQuestions[currentQuestionIndex];
+    document.getElementById('current-question').textContent = currentQuestionIndex + 1;
+    document.getElementById('question-header').textContent = `題目 ${q.questionNumber}`;
+    document.getElementById('question-text').textContent = q.question;
+    // 顯示選項但不可點選
+    const optionsDiv = document.getElementById('options');
+    optionsDiv.innerHTML = '';
+    for (const [key, value] of Object.entries(q.options)) {
+        const opt = document.createElement('div');
+        opt.className = 'option-button';
+        opt.style.pointerEvents = 'none';
+        opt.style.background = '#eee';
+        opt.style.margin = '8px 0';
+        opt.style.padding = '8px 12px';
+        opt.style.borderRadius = '5px';
+        opt.textContent = `${key}: ${value}`;
+        optionsDiv.appendChild(opt);
+    }
+    // 進度條
+    const percent = ((currentQuestionIndex) / allQuestions.length) * 100;
+    document.getElementById('progress-fill').style.width = percent + '%';
+}
+function markExam() {
+    // 記錄有考題目
+    examQuestions.push(allQuestions[currentQuestionIndex]);
+    nextQuestion();
+}
+function skipExam() {
+    nextQuestion();
+}
+function nextQuestion() {
+    currentQuestionIndex++;
+    loadQuestion();
+}
+function showResults() {
+    document.getElementById('quiz-container').style.display = 'none';
+    document.getElementById('results-container').style.display = 'block';
+    document.getElementById('results-total').textContent = allQuestions.length;
+    document.getElementById('results-exam').textContent = examQuestions.length;
+    // 顯示所有有考題目
+    const detailsDiv = document.getElementById('results-details');
+    detailsDiv.innerHTML = '';
+    if (examQuestions.length === 0) {
+        detailsDiv.innerHTML = '<span style="color:#dc3545;">（無任何題目被標記為有考）</span>';
+        document.getElementById('exam-numbers-block').textContent = '';
+    } else {
+        examQuestions.forEach(q => {
+            const item = document.createElement('div');
+            item.style.marginBottom = '18px';
+            item.innerHTML = `<strong>題號 ${q.questionNumber}</strong><br>${q.question}`;
+            detailsDiv.appendChild(item);
+        });
+        // 顯示題號區塊
+        const numbers = examQuestions.map(q => q.questionNumber).join(',');
+        document.getElementById('exam-numbers-block').textContent = numbers;
+        document.getElementById('copy-success').style.display = 'none';
+    }
+}
+function copyExamNumbers() {
+    const numbers = document.getElementById('exam-numbers-block').textContent;
+    if (!numbers) return;
+    navigator.clipboard.writeText(numbers).then(function() {
+        document.getElementById('copy-success').style.display = 'inline';
+        setTimeout(() => {
+            document.getElementById('copy-success').style.display = 'none';
+        }, 1500);
+    });
+}
+function retryQuiz() {
+    currentQuestionIndex = 0;
+    examQuestions = [];
+    document.getElementById('results-container').style.display = 'none';
+    document.getElementById('quiz-container').style.display = 'block';
+    loadQuestion();
+}
+</script>
+</body>
+</html>
