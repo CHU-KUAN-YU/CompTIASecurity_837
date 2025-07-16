@@ -8,6 +8,11 @@
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
         h1 { text-align: center; }
         .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        #menubar { flex-wrap: wrap; flex-direction: row; }
+        @media (max-width: 600px) {
+            #menubar { flex-wrap: wrap; padding: 10px 0 0 0; }
+            .menu-btn { flex: 1 1 40%; min-width: 120px; margin-bottom: 8px; font-size: 15px; }
+        }
         
         /* 答題介面樣式 */
         .quiz-interface { display: none; }
@@ -92,14 +97,17 @@
     </style>
 </head>
 <body>
-    <div id="menubar" style="position:fixed;top:0;left:0;width:100%;background:#fff;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:10px 0;display:flex;justify-content:center;gap:18px;">
-        <button class="menu-btn" onclick="scrollToAnchor('top')">置頂</button>
-        <button class="menu-btn" onclick="scrollToAnchor('q100')">100</button>
-        <button class="menu-btn" onclick="scrollToAnchor('q200')">200</button>
-        <button class="menu-btn" onclick="scrollToAnchor('q300')">300</button>
-        <button class="menu-btn" onclick="scrollToAnchor('q400')">400</button>
-        <button class="menu-btn" onclick="scrollToAnchor('q500')">500</button>
-        <button class="menu-btn" onclick="scrollToAnchor('q600')">600</button>
+    <div id="menubar" style="position:fixed;top:0;left:0;width:100%;background:#fff;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:0;display:flex;flex-direction:column;align-items:center;">
+        <button id="menubar-toggle" class="menu-btn" style="width:100%;border-radius:0 0 5px 5px;">▼ 題號選單</button>
+        <div id="menubar-content" style="display:none;width:100%;flex-wrap:wrap;justify-content:center;gap:18px;padding:10px 0;">
+            <button class="menu-btn" onclick="scrollToAnchor('top')">置頂</button>
+            <button class="menu-btn" onclick="scrollToAnchor('q100')">100</button>
+            <button class="menu-btn" onclick="scrollToAnchor('q200')">200</button>
+            <button class="menu-btn" onclick="scrollToAnchor('q300')">300</button>
+            <button class="menu-btn" onclick="scrollToAnchor('q400')">400</button>
+            <button class="menu-btn" onclick="scrollToAnchor('q500')">500</button>
+            <button class="menu-btn" onclick="scrollToAnchor('q600')">600</button>
+        </div>
     </div>
     <div class="container" style="margin-top:60px;">
         <a id="top"></a>
@@ -8440,13 +8448,45 @@ window.onload = function() {
 function scrollToAnchor(anchorId) {
     const el = document.getElementById(anchorId);
     if (el) {
-        el.scrollIntoView({behavior:'smooth',block:'start'});
+        // 若menubar展開，點擊後自動收合
+        const menubarContent = document.getElementById('menubar-content');
+        const menubarToggle = document.getElementById('menubar-toggle');
+        if (menubarContent && menubarContent.style.display === 'flex') {
+            menubarContent.style.display = 'none';
+            if (menubarToggle) menubarToggle.innerHTML = '▼ 題號選單';
+        }
+        // 補償menubar高度+50px
+        const menubar = document.getElementById('menubar');
+        let offset = menubar ? menubar.offsetHeight : 0;
+        offset += 50;
+        const rect = el.getBoundingClientRect();
+        const scrollTop = window.pageYOffset + rect.top - offset;
+        window.scrollTo({top: scrollTop, behavior: 'smooth'});
     }
 }
-// 浮動menubar按鈕樣式
-const style = document.createElement('style');
-style.innerHTML = `.menu-btn {background:#007bff;color:#fff;border:none;border-radius:5px;padding:8px 18px;font-size:16px;cursor:pointer;transition:background 0.2s;} .menu-btn:hover{background:#0056b3;}`;
-document.head.appendChild(style);
+// 浮動menubar按鈕樣式與響應式樣式
+const menubarStyle = document.createElement('style');
+menubarStyle.innerHTML = `
+.menu-btn {background:#007bff;color:#fff;border:none;border-radius:5px;padding:8px 18px;font-size:16px;cursor:pointer;transition:background 0.2s;}
+.menu-btn:hover{background:#0056b3;}
+#menubar {flex-wrap:wrap;flex-direction:column;align-items:center;}
+#menubar-content {flex-wrap:wrap;justify-content:center;gap:18px;}
+@media (max-width:600px) {
+    #menubar-content {flex-wrap:wrap;padding:10px 0 0 0;}
+    .menu-btn {flex:1 1 40%;min-width:120px;margin-bottom:8px;font-size:15px;}
+}
+`;
+document.head.appendChild(menubarStyle);
+document.getElementById('menubar-toggle').onclick = function() {
+    const content = document.getElementById('menubar-content');
+    if (content.style.display === 'none') {
+        content.style.display = 'flex';
+        this.innerHTML = '▲ 收合選單';
+    } else {
+        content.style.display = 'none';
+        this.innerHTML = '▼ 題號選單';
+    }
+};
 </script>
 </body>
 </html>
