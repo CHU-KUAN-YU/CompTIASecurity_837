@@ -26,6 +26,7 @@
             background-color: #e0e0e0;
             color: black;
             text-align: left;
+            box-sizing: border-box;
         }
         .option-button:hover { background-color: #d0d0d0; }
         .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; }
@@ -8438,14 +8439,27 @@ function loadQuestion() {
     document.getElementById('current-question').textContent = currentQuestionIndex + 1;
     document.getElementById('question-header').textContent = `題目 ${q.questionNumber}`;
     document.getElementById('question-text').textContent = q.question;
-    // 顯示選項但不可點選
+    // 顯示選項，正確答案綠底
     const optionsDiv = document.getElementById('options');
     optionsDiv.innerHTML = '';
+    // 處理多選答案格式（如 'BD'）
+    let correctKeys = [];
+    if (typeof q.answer === 'string') {
+        if (q.answer.length > 1) {
+            correctKeys = q.answer.split('');
+        } else {
+            correctKeys = [q.answer];
+        }
+    } else if (Array.isArray(q.answer)) {
+        correctKeys = q.answer;
+    }
     for (const [key, value] of Object.entries(q.options)) {
+        let isCorrect = correctKeys.includes(key);
         const opt = document.createElement('div');
         opt.className = 'option-button';
         opt.style.pointerEvents = 'none';
-        opt.style.background = '#eee';
+        opt.style.background = isCorrect ? '#d4edda' : '#eee';
+        opt.style.color = isCorrect ? '#155724' : 'black';
         opt.style.margin = '8px 0';
         opt.style.padding = '8px 12px';
         opt.style.borderRadius = '5px';
@@ -8483,7 +8497,27 @@ function showResults() {
         examQuestions.forEach(q => {
             const item = document.createElement('div');
             item.style.marginBottom = '18px';
-            item.innerHTML = `<strong>題號 ${q.questionNumber}</strong><br>${q.question}`;
+            // 標示正確答案（綠色）
+            let answerText = '';
+            let correctKeys = [];
+            if (typeof q.answer === 'string') {
+                if (q.answer.length > 1) {
+                    correctKeys = q.answer.split('');
+                } else {
+                    correctKeys = [q.answer];
+                }
+                answerText = `<span style=\"color:#28a745;font-weight:bold;\">正確答案：${q.answer}</span>`;
+            } else if (Array.isArray(q.answer)) {
+                correctKeys = q.answer;
+                answerText = `<span style=\"color:#28a745;font-weight:bold;\">正確答案：${q.answer.join(',')}</span>`;
+            }
+            // 顯示選項，正確答案綠底
+            let optionsHtml = '';
+            for (const [key, value] of Object.entries(q.options)) {
+                let isCorrect = correctKeys.includes(key);
+                optionsHtml += `<div class='option-button' style='background:${isCorrect ? '#d4edda' : '#eee'};color:${isCorrect ? '#155724' : 'black'};margin:8px 0;padding:8px 12px;border-radius:5px;'>${key}: ${value}</div>`;
+            }
+            item.innerHTML = `${answerText}<br><strong>題號 ${q.questionNumber}</strong><br>${q.question}<br>${optionsHtml}`;
             detailsDiv.appendChild(item);
         });
         // 顯示題號區塊
