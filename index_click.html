@@ -186,6 +186,7 @@
 
             <div style="margin: 15px 0; text-align: center;">
                 <button id="general-review-btn" style="padding: 12px 30px; background-color: #ff9800; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer;">總複習（隨機抽題）</button>
+                <button id="custom-set-btn" style="padding: 12px 30px; background-color: #6f42c1; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; margin-left: 10px;">Jenny 指定題庫練習</button>
             </div>
             
             <div class="custom-range">
@@ -281,6 +282,7 @@
         let userAnswers = {}; // 儲存用戶答案
         let answeredQuestions = new Set(); // 記錄已答題目
         let generalReview = [638,40,171,149,151,19,11,32,139,145,147,119,142,20,143,37,3,122,146,4,35,113,141,26,7,174,117,39,138,9,14,12,16,34,136,18,114,22,1,42,23,135,5,17,24,29];
+        let customQuestionSet = [4,8,12,13,14,16,20,21,31,32,40,59,61,68,75,76,95,100,122,123,128,134,144,145,146,149,154,172,174,180,194,201,212,213,234,235,236,239,257,275,294,300,305,312,313,316,317,319,326,334,336,338,342,348,350,363,368,370,408,411,417,418,422,423,433,445,446,447,450,451,452,454,455,457,461,463,465,467,468,470,472,473,475,476,477,478,479,480,481,482,483,484,485,486,487,488,490,492,496,498,505,506,510,525,540,547,550,561,564,569,570,571,573,587,592,609,617,618,619,621,622,627,629,631,632,636,640,644,645,652,653,654,655,659,661,667,672,676,679,692,695,698,700,707];
         let notQuestNumber = [44,45,437,501,502,615];
 
         let questionsAry =  [
@@ -8594,6 +8596,35 @@
             document.getElementById('start-quiz-button').disabled = false;
         }
 
+        // 指定題庫練習按鈕功能
+        function startCustomSetQuiz() {
+            // 依 customQuestionSet 陣列選出題目
+            const availableNumbers = allQuestions.map(q => q.questionNumber);
+            // 過濾掉不存在的題號
+            const customNumbers = customQuestionSet.filter(num => availableNumbers.includes(num));
+            if (customNumbers.length === 0) {
+                alert('指定題庫題目不存在於目前題庫！');
+                return;
+            }
+            // 隨機排序
+            const shuffled = [...customNumbers];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            // 設定隨機模式
+            isRandomMode = true;
+            randomQuestionNumbers = shuffled;
+            selectedRange = null;
+            // 顯示選擇資訊
+            const infoDiv = document.getElementById('selected-range-info');
+            const infoText = document.getElementById('selected-range-text');
+            infoText.textContent = `📚 指定題庫 ${shuffled.length} 題（題號: ${shuffled.slice(0, 5).join(', ')}${shuffled.length > 5 ? '...' : ''}）`;
+            infoDiv.style.display = 'block';
+            // 啟用開始按鈕
+            document.getElementById('start-quiz-button').disabled = false;
+        }
+
         // 檢測是否為多選題
         function isMultipleChoiceQuestion(question) {
             // 檢查是否為多選題：答案長度大於1，或題目中包含選擇提示
@@ -8648,6 +8679,11 @@
                 const reviewBtn = document.getElementById('general-review-btn');
                 if (reviewBtn) {
                     reviewBtn.onclick = startGeneralReviewQuiz;
+                }
+                // 綁定指定題庫按鈕
+                const customBtn = document.getElementById('custom-set-btn');
+                if (customBtn) {
+                    customBtn.onclick = startCustomSetQuiz;
                 }
             } catch (error) {
                 console.error('載入問題失敗:', error);
@@ -8809,11 +8845,23 @@
             // 設定範圍顯示
             const rangeDisplay = document.getElementById('current-range-display');
             if (isRandomMode) {
-                rangeDisplay.textContent = `🎲 隨機 ${currentQuestions.length} 題`;
-                rangeDisplay.parentElement.className = 'range-info random-indicator';
+                // 檢查是否為指定題庫
+                const isCustomSet = randomQuestionNumbers.some(num => customQuestionSet.includes(num)) && 
+                                   randomQuestionNumbers.every(num => customQuestionSet.includes(num));
+                if (isCustomSet) {
+                    rangeDisplay.textContent = `📚 指定題庫 ${currentQuestions.length} 題`;
+                    rangeDisplay.parentElement.className = 'range-info';
+                    rangeDisplay.parentElement.style.background = 'linear-gradient(45deg, #6f42c1, #8e44ad)';
+                    rangeDisplay.parentElement.style.color = 'white';
+                } else {
+                    rangeDisplay.textContent = `🎲 隨機 ${currentQuestions.length} 題`;
+                    rangeDisplay.parentElement.className = 'range-info random-indicator';
+                }
             } else {
                 rangeDisplay.textContent = `第 ${selectedRange.start} 題到第 ${selectedRange.end} 題`;
                 rangeDisplay.parentElement.className = 'range-info';
+                rangeDisplay.parentElement.style.background = '';
+                rangeDisplay.parentElement.style.color = '';
             }
             document.getElementById('total-questions').textContent = currentQuestions.length;
             
@@ -8858,7 +8906,14 @@
             // 設定結果頁面的基本統計
             const resultsRangeDisplay = document.getElementById('results-range-display');
             if (isRandomMode) {
-                resultsRangeDisplay.textContent = `🎲 隨機 ${currentQuestions.length} 題`;
+                // 檢查是否為指定題庫
+                const isCustomSet = randomQuestionNumbers.some(num => customQuestionSet.includes(num)) && 
+                                   randomQuestionNumbers.every(num => customQuestionSet.includes(num));
+                if (isCustomSet) {
+                    resultsRangeDisplay.textContent = `📚 指定題庫 ${currentQuestions.length} 題`;
+                } else {
+                    resultsRangeDisplay.textContent = `🎲 隨機 ${currentQuestions.length} 題`;
+                }
             } else {
                 resultsRangeDisplay.textContent = `第 ${selectedRange.start} 題到第 ${selectedRange.end} 題`;
             }
