@@ -184,9 +184,10 @@
                 <!-- 動態生成範圍選項 -->
             </div>
 
-            <div style="margin: 15px 0; text-align: center;">
+            <div style="margin: 15px 0; text-align: center; display: flex; flex-flow: row wrap; gap: .5rem; justify-content: center;">
                 <button id="general-review-btn" style="padding: 12px 30px; background-color: #ff9800; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer;">總複習（隨機抽題）</button>
                 <button id="custom-set-btn" style="padding: 12px 30px; background-color: #6f42c1; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; margin-left: 10px;">Jenny 指定題庫練習</button>
+                <button id="multiple-choice-btn" style="padding: 12px 30px; background-color: #e91e63; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; margin-left: 10px;">複選題練習</button>
             </div>
             
             <div class="custom-range">
@@ -261,8 +262,9 @@
             </div>
             
             <div class="nav-buttons" style="justify-content: space-around;">
-                <button onclick="backToRangeSelection()" style="width: 45%;">重新選擇範圍</button>
-                <button onclick="retryQuiz()" style="width: 45%; background-color: #28a745;">重新練習</button>
+                <button onclick="backToRangeSelection()" style="width: 30%;">重新選擇範圍</button>
+                <button id="practice-incorrect-btn" onclick="practiceIncorrectQuestions()" style="width: 30%; background-color: #dc3545; display: none;">練習錯誤題目</button>
+                <button onclick="retryQuiz()" style="width: 30%; background-color: #28a745;">重新練習</button>
             </div>
         </div>
     </div>
@@ -281,6 +283,7 @@
         let randomQuestionNumbers = [];
         let userAnswers = {}; // 儲存用戶答案
         let answeredQuestions = new Set(); // 記錄已答題目
+        let incorrectQuestions = []; // 儲存錯誤題目的題號
         let generalReview = [638,40,171,149,151,19,11,32,139,145,147,119,142,20,143,37,3,122,146,4,35,113,141,26,7,174,117,39,138,9,14,12,16,34,136,18,114,22,1,42,23,135,5,17,24,29];
         let customQuestionSet = [4,8,12,13,14,16,20,21,31,32,40,59,61,68,75,76,95,100,122,123,128,134,144,145,146,149,154,172,174,180,194,201,212,213,234,235,236,239,257,275,294,300,305,312,313,316,317,319,326,334,336,338,342,348,350,363,368,370,408,411,417,418,422,423,433,445,446,447,450,451,452,454,455,457,461,463,465,467,468,470,472,473,475,476,477,478,479,480,481,482,483,484,485,486,487,488,490,492,496,498,505,506,510,525,540,547,550,561,564,569,570,571,573,587,592,609,617,618,619,621,622,627,629,631,632,636,640,644,645,652,653,654,655,659,661,667,672,676,679,692,695,698,700,707];
         let notQuestNumber = [44,45,437,501,502,615];
@@ -8625,6 +8628,76 @@
             document.getElementById('start-quiz-button').disabled = false;
         }
 
+        // 複選題練習按鈕功能
+        function startMultipleChoiceQuiz() {
+            // 篩選出答案是兩個或以上選項的題目
+            const multipleChoiceQuestions = allQuestions.filter(q => q.answer && q.answer.length >= 2);
+            
+            if (multipleChoiceQuestions.length === 0) {
+                alert('目前題庫中沒有複選題！');
+                return;
+            }
+
+            // 取得複選題的題號
+            const multipleChoiceNumbers = multipleChoiceQuestions.map(q => q.questionNumber);
+            
+            // 隨機排序
+            const shuffled = [...multipleChoiceNumbers];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            
+            // 設定隨機模式
+            isRandomMode = true;
+            randomQuestionNumbers = shuffled;
+            selectedRange = null;
+            
+            // 顯示選擇資訊
+            const infoDiv = document.getElementById('selected-range-info');
+            const infoText = document.getElementById('selected-range-text');
+            infoText.textContent = `🔘 複選題練習 ${shuffled.length} 題（題號: ${shuffled.slice(0, 5).join(', ')}${shuffled.length > 5 ? '...' : ''}）`;
+            infoDiv.style.display = 'block';
+            
+            // 啟用開始按鈕
+            document.getElementById('start-quiz-button').disabled = false;
+        }
+
+        // 錯誤題目練習功能
+        function practiceIncorrectQuestions() {
+            if (incorrectQuestions.length === 0) {
+                alert('沒有錯誤題目需要練習！');
+                return;
+            }
+
+            // 隨機排序錯誤題目
+            const shuffled = [...incorrectQuestions];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            
+            // 設定隨機模式
+            isRandomMode = true;
+            randomQuestionNumbers = shuffled;
+            selectedRange = null;
+            
+            // 重置相關變數
+            currentQuestionIndex = 0;
+            selectedAnswer = null;
+            selectedAnswers = [];
+            answered = false;
+            correctAnswers = 0;
+            totalAnswered = 0;
+            userAnswers = {};
+            answeredQuestions.clear();
+            
+            // 注意：不清空錯誤題目列表，這樣練習完錯誤題目後還能再次練習仍然錯誤的題目
+            
+            // 開始答題
+            startQuiz();
+        }
+
         // 檢測是否為多選題
         function isMultipleChoiceQuestion(question) {
             // 檢查是否為多選題：答案長度大於1，或題目中包含選擇提示
@@ -8684,6 +8757,11 @@
                 const customBtn = document.getElementById('custom-set-btn');
                 if (customBtn) {
                     customBtn.onclick = startCustomSetQuiz;
+                }
+                // 綁定複選題按鈕
+                const multipleChoiceBtn = document.getElementById('multiple-choice-btn');
+                if (multipleChoiceBtn) {
+                    multipleChoiceBtn.onclick = startMultipleChoiceQuiz;
                 }
             } catch (error) {
                 console.error('載入問題失敗:', error);
@@ -8835,6 +8913,15 @@
             correctAnswers = 0;
             totalAnswered = 0;
             
+            // 檢查是否為錯誤題目練習模式
+            const isPracticingIncorrect = randomQuestionNumbers.length > 0 && 
+                                        randomQuestionNumbers.every(num => incorrectQuestions.includes(num));
+            
+            // 只有在不是錯誤題目練習模式時才清空錯誤題目列表
+            if (!isPracticingIncorrect) {
+                incorrectQuestions = [];
+            }
+            
             // 切換到答題介面
             document.getElementById('range-selector').style.display = 'none';
             document.getElementById('quiz-container').style.display = 'block';
@@ -8878,6 +8965,7 @@
             answeredQuestions.clear();
             correctAnswers = 0;
             totalAnswered = 0;
+            incorrectQuestions = []; // 清空錯誤題目列表
             
             document.getElementById('quiz-container').style.display = 'none';
             document.getElementById('results-container').style.display = 'none';
@@ -8909,8 +8997,17 @@
                 // 檢查是否為指定題庫
                 const isCustomSet = randomQuestionNumbers.some(num => customQuestionSet.includes(num)) && 
                                    randomQuestionNumbers.every(num => customQuestionSet.includes(num));
+                // 檢查是否為複選題練習
+                const isMultipleChoice = randomQuestionNumbers.length > 0 && 
+                                        randomQuestionNumbers.every(num => {
+                                            const question = allQuestions.find(q => q.questionNumber === num);
+                                            return question && question.answer && question.answer.length >= 2;
+                                        });
+                
                 if (isCustomSet) {
                     resultsRangeDisplay.textContent = `📚 指定題庫 ${currentQuestions.length} 題`;
+                } else if (isMultipleChoice) {
+                    resultsRangeDisplay.textContent = `🔘 複選題練習 ${currentQuestions.length} 題`;
                 } else {
                     resultsRangeDisplay.textContent = `🎲 隨機 ${currentQuestions.length} 題`;
                 }
@@ -8927,6 +9024,15 @@
             document.getElementById('results-correct').textContent = correctCount;
             document.getElementById('results-incorrect').textContent = incorrectCount;
             document.getElementById('results-accuracy').textContent = `${accuracy}%`;
+            
+            // 顯示或隱藏練習錯誤題目按鈕
+            const practiceIncorrectBtn = document.getElementById('practice-incorrect-btn');
+            
+            if (incorrectQuestions.length > 0) {
+                practiceIncorrectBtn.style.display = 'inline-block';
+            } else {
+                practiceIncorrectBtn.style.display = 'none';
+            }
             
             // 生成詳細結果
             generateDetailedResults();
@@ -9232,6 +9338,11 @@
             
             if (isCorrect) {
                 correctAnswers++;
+            } else {
+                // 記錄錯誤題目
+                if (!incorrectQuestions.includes(questionId)) {
+                    incorrectQuestions.push(questionId);
+                }
             }
             
             // 保存用戶答案
