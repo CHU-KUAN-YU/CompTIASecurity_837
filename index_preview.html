@@ -107,6 +107,11 @@
             <button class="menu-btn" onclick="scrollToAnchor('q400')">400</button>
             <button class="menu-btn" onclick="scrollToAnchor('q500')">500</button>
             <button class="menu-btn" onclick="scrollToAnchor('q600')">600</button>
+            <!-- 篩選按鈕分隔線 -->
+            <div style="width:100%;height:1px;background:#ddd;margin:5px 0;"></div>
+            <button id="filter-all-btn" class="menu-btn" onclick="filterQuestions('all')" style="background-color: #28a745;">顯示全部</button>
+            <button id="filter-single-btn" class="menu-btn" onclick="filterQuestions('single')" style="background-color: #007bff;">僅單選題</button>
+            <button id="filter-multiple-btn" class="menu-btn" onclick="filterQuestions('multiple')" style="background-color: #e91e63;">僅多選題</button>
         </div>
     </div>
     <div class="container" style="margin-top:60px;">
@@ -8464,6 +8469,409 @@ function scrollToAnchor(anchorId) {
         window.scrollTo({top: scrollTop, behavior: 'smooth'});
     }
 }
+
+// 篩選題目函數
+function filterQuestions(filterType) {
+    const previewDiv = document.getElementById('preview-list');
+    if (!previewDiv || !questionsAry) return;
+    
+    // 更新按鈕樣式
+    const allBtn = document.getElementById('filter-all-btn');
+    const singleBtn = document.getElementById('filter-single-btn');
+    const multipleBtn = document.getElementById('filter-multiple-btn');
+    
+    // 重置所有按鈕樣式
+    if (allBtn) allBtn.style.backgroundColor = '#6c757d';
+    if (singleBtn) singleBtn.style.backgroundColor = '#6c757d';
+    if (multipleBtn) multipleBtn.style.backgroundColor = '#6c757d';
+    
+    // 設定當前選中按鈕樣式
+    if (filterType === 'all' && allBtn) {
+        allBtn.style.backgroundColor = '#28a745';
+    } else if (filterType === 'single' && singleBtn) {
+        singleBtn.style.backgroundColor = '#007bff';
+    } else if (filterType === 'multiple' && multipleBtn) {
+        multipleBtn.style.backgroundColor = '#e91e63';
+    }
+    
+    // 篩選題目
+    let filteredQuestions = questionsAry;
+    if (filterType === 'single') {
+        filteredQuestions = questionsAry.filter(q => q.answer && q.answer.length === 1);
+    } else if (filterType === 'multiple') {
+        filteredQuestions = questionsAry.filter(q => q.answer && q.answer.length > 1);
+    }
+    
+    // 重新渲染題目
+    let htmlContent = '';
+    filteredQuestions.forEach((item, index) => {
+        const qNum = item.questionNumber;
+        let anchorId = '';
+        if (qNum === 100 || qNum === 200 || qNum === 300 || qNum === 400 || qNum === 500 || qNum === 600) {
+            anchorId = `id="q${qNum}"`;
+        }
+        
+        const optionsHtml = Object.entries(item.options || {}).map(([key, value]) => 
+            `<div style="margin: 5px 0; padding: 8px; background: #f8f9fa; border-radius: 3px;">${key}: ${value}</div>`
+        ).join('');
+        
+        // 選項翻譯映射
+        const optionTranslations = {
+            'Application': '應用程式',
+            'IPS/IDS': '入侵防護/偵測系統',
+            'Network': '網路',
+            'Endpoint': '端點',
+            'Digital forensics': '數位鑑識',
+            'E-discovery': '電子證據蒐集',
+            'Incident response': '事件回應',
+            'Threat hunting': '威脅獵捕',
+            'Accept': '接受',
+            'Transfer': '轉移',
+            'Mitigate': '減緩',
+            'Avoid': '避免',
+            'Partition': '分割',
+            'Asymmetric': '非對稱',
+            'Full disk': '全磁碟',
+            'Database': '資料庫',
+            'Detective': '偵測型',
+            'Compensating': '補償型',
+            'Corrective': '修正型',
+            'Preventive': '預防型',
+            'Hardening': '強化',
+            'Employee monitoring': '員工監控',
+            'Configuration enforcement': '組態強制執行',
+            'Least privilege': '最小權限',
+            'Client': '客戶端',
+            'Third-party vendor': '第三方廠商',
+            'Cloud provider': '雲端供應商',
+            'DBA': '資料庫管理員',
+            'MSA': '主服務協議',
+            'SLA': '服務等級協議',
+            'BPA': '商業夥伴協議',
+            'SOW': '工作說明書',
+            'Secure cookies': '安全Cookie',
+            'Version control': '版本控制',
+            'Input validation': '輸入驗證',
+            'Code signing': '程式碼簽章',
+            'Ease of recovery': '恢復便利性',
+            'Ability to patch': '修補能力',
+            'Physical isolation': '實體隔離',
+            'Responsiveness': '回應性',
+            'Attack surface': '攻擊面',
+            'Extensible authentication': '可擴展認證',
+            'Air gap the system': '系統離線隔離',
+            'Move the system to a different network segment': '將系統移至不同網路區段',
+            'Create a change control request': '建立變更控制請求',
+            'Apply the patch to the system': '對系統套用修補程式',
+            'To gather loCs for the investigation': '為調查收集入侵指標',
+            'To discover which systems have been affected': '發現哪些系統受影響',
+            'To eradicate any trace of malware on the network': '清除網路上所有惡意軟體痕跡',
+            'To prevent future incidents of the same nature': '防止同性質事件再次發生',
+            'Fines': '罰款',
+            'Audit findings': '稽核發現',
+            'Sanctions': '制裁',
+            'Reputation damage': '聲譽損害',
+            'Capacity planning': '容量規劃',
+            'Redundancy': '冗餘',
+            'Geographic dispersion': '地理分散',
+            'Tablet exercise': '桌面演練',
+            'Data masking': '資料遮罩',
+            'Encryption': '加密',
+            'Geolocation policy': '地理位置政策',
+            'Data sovereignty regulation': '資料主權法規',
+            'Firmware version': '韌體版本',
+            'Buffer overflow': '緩衝區溢位',
+            'SQL injection': 'SQL注入',
+            'Cross-site scripting': '跨站腳本攻擊',
+            'Documenting the new policy in a change request and submitting the request to change management': '在變更請求中記錄新政策並提交給變更管理',
+            'Testing the policy in a non-production environment before enabling the policy in the production network': '在非生產環境中測試政策後再在生產網路中啟用',
+            'Disabling any intrusion prevention signatures on the deny any policy prior to enabling the new policy': '在啟用新政策前停用拒絕任何政策的入侵防護簽章',
+            'Including an allow any policy above the deny any policy': '在拒絕任何政策上方包含允許任何政策',
+            'Real-time recovery': '即時恢復',
+            'Hot': '熱備援',
+            'Cold': '冷備援',
+            'Warm': '溫備援',
+            'Enumeration': '列舉',
+            'Sanitization': '清理',
+            'Destruction': '銷毀',
+            'Inventory': '清單',
+            'Private': '私人',
+            'Critical': '關鍵',
+            'Sensitive': '敏感',
+            'Public': '公開',
+            'Local data protection regulations': '當地資料保護法規',
+            'Risks from hackers residing in other countries': '來自其他國家駭客的風險',
+            'Impacts to existing contractual obligations': '對現有合約義務的影響',
+            'Time zone differences in log correlation': '日誌關聯的時區差異',
+            'Access control list': '存取控制清單',
+            'Application allow list': '應用程式允許清單',
+            'Host-based firewall': '主機防火牆',
+            'DLP solution': '資料外洩防護解決方案',
+            'Blue': '藍隊',
+            'White': '白隊',
+            'Purple': '紫隊',
+            'Red': '紅隊',
+            'Ensuring secure cookies are use': '確保使用安全Cookie',
+            'Code review': '程式碼審查',
+            'Code obfuscation': '程式碼混淆',
+            'Honey pot': '蜜罐',
+            'Video surveillance': '視訊監控',
+            'Zero Trust': '零信任',
+            'Geofencing': '地理圍欄',
+            'Analysis': '分析',
+            'Identification': '識別',
+            'Eradication': '根除',
+            'Containment': '圍堵',
+            'Scan the system for vulnerabilities': '掃描系統漏洞',
+            'Rescan the system for vulnerabilities': '重新掃描系統漏洞',
+            'Implement continuous monitoring': '實施持續監控',
+            'Submit a report': '提交報告',
+            'Social engineering': '社交工程',
+            'Privilege escalation': '權限提升',
+            'Data exfiltration': '資料外洩',
+            'Insider threat': '內部威脅',
+            'Hashing': '雜湊',
+            'Non-repudiation': '不可否認性',
+            'Symmetric encryption': '對稱加密',
+            'Access logs': '存取日誌',
+            'File integrity monitoring': '檔案完整性監控',
+            'Antivirus software': '防毒軟體',
+            'Configuration management': '組態管理',
+            'Manual audit': '手動稽核',
+            'SIEM': '安全資訊與事件管理',
+            'IDS': '入侵偵測系統',
+            'DLP': '資料外洩防護',
+            'CASB': '雲端存取安全代理',
+            'Code review': '程式碼審查',
+            'Penetration testing': '滲透測試',
+            'Input validation': '輸入驗證',
+            'Static code analysis': '靜態程式碼分析',
+            'Placing posters around the office to raise awareness of common phishing activities': '在辦公室張貼海報提高對常見網路釣魚活動的認知',
+            'Implementing email security filters to prevent phishing emails from being delivered': '實施電子郵件安全過濾器防止網路釣魚郵件被傳送',
+            'Updating EDR policies to block automatic execution of downloaded programs': '更新EDR政策以阻止下載程式的自動執行',
+            'Creating additional training for users to recognize the signs of phishing attempts': '為使用者創建額外訓練以識別網路釣魚嘗試的跡象',
+            'Corrective control': '修正型控制',
+            'Compensating control': '補償型控制',
+            'Deterrent control': '嚇阻型控制',
+            'SNMP traps': 'SNMP陷阱',
+            'Guard rail script': '防護欄腳本',
+            'Ticketing workflow': '工單工作流程',
+            'Escalation script': '升級腳本',
+            'User provisioning script': '使用者佈建腳本',
+            'Preventive': '預防型',
+            'Detective': '偵測型',
+            'Corrective': '修正型',
+            'Deterrent': '嚇阻型',
+            'PaaS': '平台即服務',
+            'IaaS': '基礎設施即服務',
+            'SaaS': '軟體即服務',
+            'SDN': '軟體定義網路',
+            'Tuning': '調校',
+            'Aggregating': '聚合',
+            'Quarantining': '隔離',
+            'Archiving': '封存',
+            'Password spraying': '密碼噴灑',
+            'Brute force': '暴力破解',
+            'Dictionary attack': '字典攻擊',
+            'Rainbow table': '彩虹表',
+            'Clustering servers': '叢集伺服器',
+            'Load balancers': '負載平衡器',
+            'Geographic dispersion': '地理分散',
+            'Off-site backups': '異地備份',
+            'Data loss': '資料遺失',
+            'Personally owned applications': '個人擁有的應用程式',
+            'Jailbreaking': '越獄',
+            'Physical theft': '實體竊取',
+            'Sandboxing': '沙箱',
+            'Least privilege': '最小權限',
+            'Job rotation': '工作輪調',
+            'Mandatory vacation': '強制休假',
+            'Denial of service': '拒絕服務',
+            'Man-in-the-middle': '中間人攻擊',
+            'Buffer overflow': '緩衝區溢位',
+            'Privilege escalation': '權限提升',
+            'Authentication': '認證',
+            'Segmentation': '網路分段',
+            'Sandboxing': '沙箱',
+            'Patching': '修補',
+            'Code signing': '程式碼簽章',
+            'Steganography': '隱寫術',
+            'Hashing': '雜湊',
+            'Symmetric encryption': '對稱加密',
+            'Forensic investigation': '鑑識調查',
+            'Legal hold': '法律保留',
+            'Chain of custody': '監管鏈',
+            'Data retention': '資料保留',
+            'Simulated phishing campaign': '模擬網路釣魚活動',
+            'Security awareness training': '資安意識訓練',
+            'Tabletop exercise': '桌面演練',
+            'Penetration testing': '滲透測試',
+            'Content filter': '內容過濾器',
+            'Web application firewall': 'Web應用程式防火牆',
+            'Proxy server': '代理伺服器',
+            'Load balancer': '負載平衡器',
+            'Data breach': '資料外洩',
+            'Insider threat': '內部威脅',
+            'Advanced persistent threat': '進階持續性威脅',
+            'Denial of service': '拒絕服務',
+            'Revoking access': '撤銷存取權限',
+            'Disabling access': '停用存取權限',
+            'Offboarding': '離職程序',
+            'Updating permissions': '更新權限',
+            'Air gap': '離線隔離',
+            'Jump server': '跳板伺服器',
+            'Logical segmentation': '邏輯分段',
+            'Virtualization': '虛擬化',
+            'Encryption': '加密',
+            'Hashing': '雜湊',
+            'Masking': '遮罩',
+            'Tokenization': '代幣化',
+            'Denial of service': '拒絕服務',
+            'Ransomware': '勒索軟體',
+            'Trojan': '木馬程式',
+            'Rootkit': '根套件',
+            'Confidentiality': '機密性',
+            'Integrity': '完整性',
+            'Availability': '可用性',
+            'Authentication': '認證'
+        };
+
+        // 生成答案選項翻譯
+        let answerOptionsHtml = '';
+        if (item.answer && item.options) {
+            const answerKeys = item.answer.split('');
+            answerOptionsHtml = answerKeys.map(key => {
+                const optionText = item.options[key] || '';
+                const translation = optionTranslations[optionText] || optionText;
+                return `<div style="margin: 3px 0; padding: 5px; background: #f0f8ff; border-radius: 3px; font-size: 14px;">${key}: ${optionText}${translation !== optionText ? ` (${translation})` : ''}</div>`;
+            }).join('');
+        }
+
+        // 翻譯解釋內容
+        const translateExplanation = (text) => {
+            if (!text) return '無解釋';
+            
+            // 簡單的翻譯映射，可以根據需要擴展
+            const translations = {
+                'Endpoint logs are the most suitable data source for gathering additional information about the executable running on the employee\'s corporate laptop. These logs contain detailed information about processes, executables, and activities occurring on the endpoint, enabling the security analyst to understand the behavior of the executable and its potential impact on the system and network.': 
+                '端點日誌是收集員工公司筆電上執行程式額外資訊的最適合資料來源。這些日誌包含關於程序、可執行檔和端點上發生活動的詳細資訊，使安全分析師能夠了解可執行檔的行為及其對系統和網路的潛在影響。',
+                
+                'Threat hunting is the process of proactively searching for signs of malicious activity or compromise in a network, rather than waiting for alerts or indicators of compromise (IOCs) to appear. Threat hunting can help identify new tactics, techniques, and procedures (TTPs) used by malicious actors, as well as uncover hidden or stealthy threats that may have evaded detection by security tools. Threat hunting requires a combination of skills, tools, and methodologies, such as hypothesis generation, data collection and analysis, threat intelligence, and incident response. Threat hunting can also help improve the security posture of an organization by providing feedback and recommendations for security improvements.':
+                '威脅獵捕是主動搜尋網路中惡意活動或入侵跡象的過程，而不是等待警報或入侵指標(IOCs)出現。威脅獵捕可以幫助識別惡意行為者使用的新戰術、技術和程序(TTPs)，以及發現可能逃避安全工具偵測的隱藏或隱蔽威脅。威脅獵捕需要結合技能、工具和方法論，如假設生成、資料收集和分析、威脅情報和事件回應。威脅獵捕還可以通過提供安全改進的回饋和建議來幫助改善組織的安全態勢。',
+                
+                'Transfer: Transferring a risk involves shifting some or all of the risk to another party, such as an insurance provider, through contractual agreements or financial arrangements. If the company purchases cyber insurance to address items listed on the risk register, it represents a risk transfer strategy. The company is transferring the financial burden of potential cyber incidents to the insurance provider, who will compensate the company for covered losses. Given the scenario described, the strategy represented by the company\'s purchase of cyber insurance to address items listed on the risk register is Transfer. The company is transferring some of the financial consequences of potential cyber incidents to the insurance provider through the purchase of insurance coverage.':
+                '轉移：風險轉移涉及通過合約協議或財務安排將部分或全部風險轉移給另一方，例如保險供應商。如果公司購買網路保險來解決風險登記中列出的項目，這代表風險轉移策略。公司將潛在網路事件的財務負擔轉移給保險供應商，保險供應商將對承保損失進行賠償。根據所描述的情況，公司購買網路保險來解決風險登記中列出項目所代表的策略是轉移。公司通過購買保險承保將潛在網路事件的一些財務後果轉移給保險供應商。',
+                
+                'Full disk encryption (FDE) encrypts all the data on a disk drive, protecting the data at rest on the entire laptop, including the operating system, applications, and user files. This ensures that if a laptop is lost or stolen, the data cannot be accessed without the correct decryption key.':
+                '全磁碟加密(FDE)加密磁碟驅動器上的所有資料，保護整台筆電上的靜態資料，包括作業系統、應用程式和使用者檔案。這確保了如果筆電遺失或被盜，沒有正確的解密金鑰就無法存取資料。',
+                
+                'Preventive - an acceptable use policy enforces rules to users to use company resources. example - company A states that in order to access files in the company server you must connect to your company VPN when working from home. This prevents you from connecting from an insecure network.':
+                '預防型 - 可接受使用政策對使用者使用公司資源強制執行規則。例如 - A公司規定為了存取公司伺服器中的檔案，在家工作時必須連接到公司VPN。這防止您從不安全的網路連接。',
+                
+                'The principle of least privilege is a security concept that limits access to resources to the minimum level needed for a user, a program, or a device to perform a legitimate function. It is a cybersecurity best practice that protects high-value data and assets from compromise or insider threat. Least privilege can be applied to different abstraction layers of a computing environment, such as processes, systems, or connected devices. However, it is rarely implemented in practice. In this scenario, the IT manager is setting up the principle of least privilege by restricting access to the administrator console of the help desk software to only two authorized users: the IT manager and the help desk lead. This way, the IT manager can prevent unauthorized or accidental changes to the software configuration, data, or functionality by other help desk staff. The other help desk staff will only have access to the normal user interface of the software, which is sufficient for them to perform their job functions. The other options are not correct. Hardening is the process of securing a system by reducing its surface of vulnerability, such as by removing unnecessary software, changing default passwords, or disabling unnecessary services. Employee monitoring is the surveillance of workers\' activity, such as by tracking web browsing, application use, keystrokes, or screenshots. Configuration enforcement is the process of ensuring that a system adheres to a predefined set of security settings, such as by applying a patch, a policy, or a template.':
+                '最小權限原則是一個安全概念，將使用者、程式或設備對資源的存取限制在執行合法功能所需的最低水準。這是一個網路安全最佳實務，保護高價值資料和資產免受入侵或內部威脅。最小權限可以應用於運算環境的不同抽象層，如程序、系統或連接設備。然而，在實務中很少實施。在這種情況下，IT經理通過將幫助桌面軟體管理員控制台的存取權限限制在只有兩個授權使用者：IT經理和幫助桌面主管，來設定最小權限原則。這樣，IT經理可以防止其他幫助桌面員工對軟體配置、資料或功能進行未經授權或意外的更改。其他幫助桌面員工只能存取軟體的正常使用者介面，這足以讓他們執行工作功能。其他選項不正確。強化是通過減少系統的漏洞表面來保護系統的過程，例如移除不必要的軟體、更改預設密碼或停用不必要的服務。員工監控是對工作者活動的監視，例如追蹤網頁瀏覽、應用程式使用、鍵盤輸入或螢幕截圖。配置強制執行是確保系統遵守預定義安全設定集的過程，例如應用修補程式、政策或範本。',
+                
+                'According to the shared responsibility model, the client and the cloud provider have different roles and responsibilities for securing the cloud environment, depending on the service model. In an IaaS (Infrastructure as a Service) model, the cloud provider is responsible for securing the physical infrastructure, such as the servers, storage, and network devices, while the client is responsible for securing the operating systems, applications, and data that run on the cloud infrastructure. Therefore, the client is responsible for securing the company\'s database in an IaaS model for a cloud environment, as the database is an application that stores data. The client can use various security controls, such as encryption, access control, backup, and auditing, to protect the database from unauthorized access, modification, or loss. The third-party vendor and the DBA (Database Administrator) are not roles defined by the shared responsibility model, but they may be involved in the implementation or management of the database security.':
+                '根據共同責任模型，客戶端和雲端供應商在保護雲端環境方面有不同的角色和責任，這取決於服務模型。在IaaS（基礎設施即服務）模型中，雲端供應商負責保護實體基礎設施，如伺服器、儲存和網路設備，而客戶端負責保護在雲端基礎設施上運行的作業系統、應用程式和資料。因此，客戶端負責在雲端環境的IaaS模型中保護公司的資料庫，因為資料庫是儲存資料的應用程式。客戶端可以使用各種安全控制，如加密、存取控制、備份和稽核，來保護資料庫免受未經授權的存取、修改或遺失。第三方廠商和DBA（資料庫管理員）不是共同責任模型定義的角色，但他們可能參與資料庫安全的實施或管理。',
+                
+                'An ISOW is a document that outlines the project, the cost, and the completion time frame for a security company to provide a service to a client. ISOW stands for Information Security Operations Work, and it is a type of contract that specifies the scope, deliverables, milestones, and payment terms of a security project. An ISOW is usually used for one-time or short-term projects that have a clear and defined objective and outcome. For example, an ISOW can be used for a security assessment, a penetration test, a security audit, or a security training. The other options are not correct because they are not documents that outline the project, the cost, and the completion time frame for a security company to provide a service to a client. A MSA is a master service agreement, which is a type of contract that establishes the general terms and conditions for a long-term or ongoing relationship between a security company and a client. A MSA does not specify the details of each individual project, but rather sets the framework for future projects that will be governed by separate statements of work (SOWs). A SLA is a service level agreement, which is a type of contract that defines the quality and performance standards for a security service provided by a security company to a client. A SLA usually includes the metrics, targets, responsibilities, and penalties for measuring and ensuring the service level. A BPA is a business partnership agreement, which is a type of contract that establishes the roles and expectations for a strategic alliance between two or more security companies that collaborate to provide a joint service to a client. A BPA usually covers the objectives, benefits, risks, and obligations of the partnership.':
+                'SOW是一份文件，概述了安全公司為客戶提供服務的專案、成本和完成時間框架。SOW代表工作說明書，是一種合約類型，指定安全專案的範圍、交付成果、里程碑和付款條件。SOW通常用於有明確和明確目標和結果的一次性或短期專案。例如，SOW可用於安全評估、滲透測試、安全稽核或安全培訓。其他選項不正確，因為它們不是概述安全公司為客戶提供服務的專案、成本和完成時間框架的文件。MSA是主服務協議，是一種建立安全公司和客戶之間長期或持續關係的一般條款和條件的合約類型。MSA不指定每個個別專案的詳細資訊，而是為將由單獨的工作說明書(SOW)管理的未來專案設定框架。SLA是服務等級協議，是一種定義安全公司向客戶提供的安全服務品質和性能標準的合約類型。SLA通常包括衡量和確保服務等級的指標、目標、責任和懲罰。BPA是商業夥伴協議，是一種建立兩個或多個安全公司之間戰略聯盟的角色和期望的合約類型，這些公司合作為客戶提供聯合服務。BPA通常涵蓋夥伴關係的目標、利益、風險和義務。',
+                
+                'Input validation is a technique that checks the user input for any malicious or unexpected data before processing it by the web application. Input validation can prevent cross-site scripting (XSS) attacks, which exploit the vulnerability of a web application to execute malicious scripts in the browser of a victim. XSS attacks can compromise the confidentiality, integrity, and availability of the web application and its users. Input validation can be implemented on both the client-side and the server-side, but server-side validation is more reliable and secure. Input validation can use various methods, such as whitelisting, blacklisting, filtering, escaping, encoding, and sanitizing the input data.':
+                '輸入驗證是一種技術，在網路應用程式處理之前檢查使用者輸入是否有任何惡意或意外資料。輸入驗證可以防止跨站腳本攻擊(XSS)，這種攻擊利用網路應用程式的漏洞在受害者的瀏覽器中執行惡意腳本。XSS攻擊可能損害網路應用程式及其使用者的機密性、完整性和可用性。輸入驗證可以在客戶端和伺服器端實施，但伺服器端驗證更可靠和安全。輸入驗證可以使用各種方法，如白名單、黑名單、過濾、轉義、編碼和清理輸入資料。',
+                
+                'Ease of recovery: High-availability networks should be designed in a way that allows for quick and easy recovery in the event of a failure. Redundancy, failover mechanisms, and backup systems are some of the components that can help facilitate smooth recovery. Responsiveness: High-availability networks need to be responsive to ensure that any potential issues or failures are quickly detected, and appropriate actions are taken promptly to minimize downtime and impact.':
+                '恢復便利性：高可用性網路應該設計成在故障時能夠快速和容易恢復的方式。冗餘、故障轉移機制和備份系統是一些可以幫助促進順利恢復的組件。回應性：高可用性網路需要具有回應性，以確保快速偵測任何潛在問題或故障，並迅速採取適當行動以最小化停機時間和影響。',
+                
+                'A change control request is a document that describes the proposed change to a system, the reason for the change, the expected impact, the approval process, the testing plan, the implementation plan, the rollback plan, and the communication plan. A change control request is a best practice for applying any patch to a production system, especially a high-priority one, as it ensures that the change is authorized, documented, tested, and communicated. A change control request also minimizes the risk of unintended consequences, such as system downtime, data loss, or security breaches.':
+                '變更控制請求是一份文件，描述對系統的建議變更、變更原因、預期影響、審批流程、測試計畫、實施計畫、回滾計畫和溝通計畫。變更控制請求是對生產系統應用任何修補程式的最佳實務，特別是高優先級的修補程式，因為它確保變更得到授權、記錄、測試和溝通。變更控制請求還最小化意外後果的風險，如系統停機、資料遺失或安全違規。',
+                
+                'Root cause analysis is a process of identifying and resolving the underlying factors that led to an incident. By conducting root cause analysis as part of incident response, security professionals can learn from the incident and implement corrective actions to prevent future incidents of the same nature. For example, if the root cause of a data breach was a weak password policy, the security team can enforce a stronger password policy and educate users on the importance of password security. Root cause analysis can also help to improve security processes, policies, and procedures, and to enhance security awareness and culture within the organization. Root cause analysis is not meant to gather loCs (indicators of compromise) for the investigation, as this is a task performed during the identification and analysis phases of incident response. Root cause analysis is also not meant to discover which systems have been affected or to eradicate any trace of malware on the network, as these are tasks performed during the containment and eradication phases of incident response.':
+                '根本原因分析是識別和解決導致事件的潛在因素的過程。通過將根本原因分析作為事件回應的一部分，安全專業人員可以從事件中學習並實施糾正措施以防止同性質的未來事件。例如，如果資料外洩的根本原因是弱密碼政策，安全團隊可以執行更強的密碼政策並教育使用者密碼安全的重要性。根本原因分析還可以幫助改善安全流程、政策和程序，以及增強組織內的安全意識和文化。根本原因分析不是為了收集調查的入侵指標(IOCs)，因為這是在事件回應的識別和分析階段執行的任務。根本原因分析也不是為了發現哪些系統受到影響或根除網路上惡意軟體的任何痕跡，因為這些是在事件回應的圍堵和根除階段執行的任務。',
+                
+                'What are the consequences of not being PCI DSS compliant? The fines imposed by the Card Brands and Acquiring Banks on merchants for non-compliance can range from $5,000 to $100,000 per month. These fines, along with credit monitoring fees, can impose substantial financial strain on businesses, underscoring the necessity of abiding by the PCI DSS requirements.':
+                '不符合PCI DSS的後果是什麼？卡片品牌和收單銀行對不合規商戶徵收的罰款可能從每月5,000美元到100,000美元不等。這些罰款連同信用監控費用，可能對企業造成重大財務壓力，強調了遵守PCI DSS要求的必要性。',
+                
+                'Capacity planning is the process of determining the resources needed to meet the current and future demands of an organization. Capacity planning can help a company develop a business continuity strategy by estimating how many staff members would be required to sustain the business in the case of a disruption, such as a natural disaster, a cyberattack, or a pandemic. Capacity planning can also help a company optimize the use of its resources, reduce costs, and improve performance.':
+                '容量規劃是確定滿足組織當前和未來需求所需資源的過程。容量規劃可以通過估計在自然災害、網路攻擊或大流行等干擾情況下維持業務所需的員工人數，幫助公司制定業務持續性策略。容量規劃還可以幫助公司優化資源使用、降低成本和改善性能。',
+                
+                'A geolocation policy is a policy that restricts or allows access to data or resources based on the geographic location of the user or device. A geolocation policy can be implemented using various methods, such as IP address filtering, GPS tracking, or geofencing. A geolocation policy can help the company\'s legal department to prevent unauthorized access to sensitive documents from individuals in high-risk countries.':
+                '地理位置政策是根據使用者或設備的地理位置限制或允許存取資料或資源的政策。地理位置政策可以使用各種方法實施，如IP地址過濾、GPS追蹤或地理圍欄。地理位置政策可以幫助公司法務部門防止來自高風險國家個人對敏感文件的未經授權存取。',
+                
+                'Firmware is a type of software that is embedded in a hardware device, such as a router, a printer, or a BIOS chip. Firmware controls the basic functions and operations of the device, and it can be updated or modified by the manufacturer or the user. Firmware version is a hardware-specific vulnerability, as it can expose the device to security risks if it is outdated, corrupted, or tampered with. An attacker can exploit firmware vulnerabilities to gain unauthorized access, modify device settings, install malware, or cause damage to the device or the network. Therefore, it is important to keep firmware updated and verify its integrity and authenticity.':
+                '韌體是嵌入在硬體設備中的一種軟體，如路由器、印表機或BIOS晶片。韌體控制設備的基本功能和操作，可以由製造商或使用者更新或修改。韌體版本是硬體特定的漏洞，因為如果它過時、損壞或被篡改，可能會使設備面臨安全風險。攻擊者可以利用韌體漏洞獲得未經授權的存取、修改設備設定、安裝惡意軟體或對設備或網路造成損害。因此，保持韌體更新並驗證其完整性和真實性很重要。',
+                
+                'Warm Sites - Not fully equipped, but fundamentals in place - Can be up and running within a few days - Cheaper than hot sites but with a slight delay Cold Sites - Fewer facilities than warm sites - May be just an empty building, ready in 1-2 months - Cost-effective but adds more recovery time':
+                '溫備援站點 - 不是完全配備，但基礎設施已就位 - 可以在幾天內啟動運行 - 比熱備援站點便宜但有輕微延遲 冷備援站點 - 比溫備援站點設施更少 - 可能只是一個空建築，1-2個月內準備就緒 - 成本效益高但增加更多恢復時間',
+                
+                'Sanitization is the process of removing sensitive data from a storage device or a system before it is disposed of or reused. Sanitization can be done by using software tools or hardware devices that overwrite the data with random patterns or zeros, making it unrecoverable. Sanitization is different from destruction, which is the physical damage of the storage device to render it unusable. Sanitization is also different from enumeration, which is the identification of network resources or devices, and inventory, which is the tracking of assets and their locations. The policy of securely wiping hard drives before sending decommissioned systems to recycling is an example of sanitization, as it ensures that no confidential data can be retrieved from the recycled devices.':
+                '清理是在儲存設備或系統被處置或重複使用之前從中移除敏感資料的過程。清理可以通過使用軟體工具或硬體設備來覆寫資料與隨機模式或零，使其無法恢復。清理不同於銷毀，銷毀是對儲存設備的物理損壞以使其無法使用。清理也不同於列舉，列舉是網路資源或設備的識別，以及清單，清單是資產及其位置的追蹤。在將除役系統送去回收之前安全擦除硬碟的政策是清理的一個例子，因為它確保不能從回收設備中檢索到機密資料。',
+                
+                'Local data protection regulations are the first thing that a cloud-hosting provider should consider before expanding its data centers to new international locations. Data protection regulations are laws or standards that govern how personal or sensitive data is collected, stored, processed, and transferred across borders. Different countries or regions may have different data protection regulations, such as the General Data Protection Regulation (GDPR) in the European Union, the Personal Information Protection and Electronic Documents Act (PIPEDA) in Canada, or the California Consumer Privacy Act (CCPA) in the United States. A cloud-hosting provider must comply with the local data protection regulations of the countries or regions where it operates or serves customers, or else it may face legal penalties, fines, or reputational damage. Therefore, a cloud-hosting provider should research and understand the local data protection regulations of the new international locations before expanding its data centers there.':
+                '當地資料保護法規是雲端託管供應商在將其資料中心擴展到新的國際地點之前應該首先考慮的事情。資料保護法規是管理個人或敏感資料如何跨境收集、儲存、處理和傳輸的法律或標準。不同國家或地區可能有不同的資料保護法規，如歐盟的一般資料保護法規(GDPR)、加拿大的個人資訊保護和電子文件法(PIPEDA)或美國的加州消費者隱私法(CCPA)。雲端託管供應商必須遵守其運營或服務客戶的國家或地區的當地資料保護法規，否則可能面臨法律懲罰、罰款或聲譽損害。因此，雲端託管供應商應該在將資料中心擴展到新的國際地點之前研究和了解這些地點的當地資料保護法規。',
+                
+                'An application allow list is a security technique that specifies which applications are permitted to run on a system or a network. An application allow list can block unknown programs from executing by only allowing the execution of programs that are explicitly authorized and verified. An application allow list can prevent malware, unauthorized software, or unwanted applications from running and compromising the security of the system or the network. The other options are not the best ways to block unknown programs from executing: Access control list: This is a security technique that specifies which users or groups are granted or denied access to a resource or an object. An access control list can control the permissions and privileges of users or groups, but it does not directly block unknown programs from executing. Host-based firewall: This is a security device that monitors and filters the incoming and outgoing network traffic on a single host or system. A host-based firewall can block or allow network connections based on predefined rules, but it does not directly block unknown programs from executing. DLP solution: This is a security system that detects and prevents the unauthorized transmission or leakage of sensitive data. A DLP solution can protect the confidentiality and integrity of data, but it does not directly block unknown programs from executing.':
+                '應用程式允許清單是一種安全技術，指定哪些應用程式被允許在系統或網路上運行。應用程式允許清單可以通過只允許執行明確授權和驗證的程式來阻止未知程式執行。應用程式允許清單可以防止惡意軟體、未經授權的軟體或不需要的應用程式運行並危害系統或網路的安全。其他選項不是阻止未知程式執行的最佳方法：存取控制清單：這是一種指定哪些使用者或群組被授予或拒絕存取資源或物件的安全技術。存取控制清單可以控制使用者或群組的權限和特權，但它不直接阻止未知程式執行。主機防火牆：這是一種監控和過濾單一主機或系統上的傳入和傳出網路流量的安全設備。主機防火牆可以根據預定義規則阻止或允許網路連接，但它不直接阻止未知程式執行。DLP解決方案：這是一種偵測和防止敏感資料未經授權傳輸或洩漏的安全系統。DLP解決方案可以保護資料的機密性和完整性，但它不直接阻止未知程式執行。',
+                
+                'A red team is a group of security professionals who perform offensive security assessments covering penetration testing and social engineering. A red team simulates real-world attacks and exploits the vulnerabilities of a target organization, system, or network. A red team aims to test the effectiveness of the security controls, policies, and procedures of the target, as well as the awareness and response of the staff and the blue team. A red team can be hired as an external consultant or formed internally within the organization.':
+                '紅隊是一群執行包括滲透測試和社交工程的攻擊性安全評估的安全專業人員。紅隊模擬真實世界的攻擊並利用目標組織、系統或網路的漏洞。紅隊旨在測試目標的安全控制、政策和程序的有效性，以及員工和藍隊的意識和回應。紅隊可以作為外部顧問聘請或在組織內部組建。',
+                
+                'Code signing is a technique that uses cryptography to verify the authenticity and integrity of the code created by the company. Code signing involves applying a digital signature to the code using a private key that only the company possesses. The digital signature can be verified by anyone who has the corresponding public key, which can be distributed through a trusted certificate authority. Code signing can prevent unauthorized modifications, tampering, or malware injection into the code, and it can also assure the users that the code is from a legitimate source.':
+                '程式碼簽章是一種使用密碼學來驗證公司創建的程式碼真實性和完整性的技術。程式碼簽章涉及使用只有公司擁有的私密金鑰對程式碼應用數位簽章。數位簽章可以被任何擁有相應公開金鑰的人驗證，該公開金鑰可以通過可信任的憑證授權機構分發。程式碼簽章可以防止對程式碼進行未經授權的修改、篡改或惡意軟體注入，並且還可以向使用者保證程式碼來自合法來源。',
+                
+                'A honey pot is a system or a network that is designed to mimic a real production server and attract potential attackers. A honey pot can be used to identify the attacker\'s methods, techniques, and objectives without affecting the actual production servers. A honey pot can also divert the attacker\'s attention from the real targets and waste their time and resources. The other options are not effective ways to identify potential attacker activities without affecting production servers: Video surveillance: This is a physical security technique that uses cameras and monitors to record and observe the activities in a certain area. Video surveillance can help to deter, detect, and investigate physical intrusions, but it does not directly identify the attacker\'s activities on the network or the servers. Zero Trust: This is a security strategy that assumes that no user, device, or network is trustworthy by default and requires strict verification and validation for every request and transaction. Zero Trust can help to improve the security posture and reduce the attack surface of an organization, but it does not directly identify the attacker\'s activities on the network or the servers. Geofencing: This is a security technique that uses geographic location as a criterion to restrict or allow access to data or resources. Geofencing can help to protect the data sovereignty and compliance of an organization, but it does not directly identify the attacker\'s activities on the network or the servers.':
+                '蜜罐是一個設計來模仿真實生產伺服器並吸引潛在攻擊者的系統或網路。蜜罐可以用來識別攻擊者的方法、技術和目標，而不影響實際的生產伺服器。蜜罐還可以將攻擊者的注意力從真正的目標轉移開，浪費他們的時間和資源。其他選項不是在不影響生產伺服器的情況下識別潛在攻擊者活動的有效方法：視訊監控：這是一種使用攝影機和監視器記錄和觀察某個區域活動的實體安全技術。視訊監控可以幫助阻止、偵測和調查實體入侵，但它不直接識別攻擊者在網路或伺服器上的活動。零信任：這是一種假設預設情況下沒有使用者、設備或網路是可信任的，並且對每個請求和交易都需要嚴格驗證和確認的安全策略。零信任可以幫助改善組織的安全態勢並減少攻擊面，但它不直接識別攻擊者在網路或伺服器上的活動。地理圍欄：這是一種使用地理位置作為限制或允許存取資料或資源標準的安全技術。地理圍欄可以幫助保護組織的資料主權和合規性，但它不直接識別攻擊者在網路或伺服器上的活動。',
+                
+                'Analysis is the incident response activity that describes the process of understanding the source of an incident. Analysis involves collecting and examining evidence, identifying the root cause, determining the scope and impact, and assessing the threat actor\'s motives and capabilities. Analysis helps the incident response team to formulate an appropriate response strategy, as well as to prevent or mitigate future incidents. Analysis is usually performed after detection and before containment, eradication, recovery, and lessons learned.':
+                '分析是描述了解事件來源過程的事件回應活動。分析涉及收集和檢查證據、識別根本原因、確定範圍和影響，以及評估威脅行為者的動機和能力。分析幫助事件回應團隊制定適當的回應策略，以及防止或減輕未來事件。分析通常在偵測之後和圍堵、根除、恢復和經驗學習之前執行。',
+                
+                'An insider threat is a security risk that originates from within the organization, such as an employee, contractor, or business partner, who has authorized access to the organization\'s data and systems. An insider threat can be malicious, such as stealing, leaking, or sabotaging sensitive data, or unintentional, such as falling victim to phishing or social engineering. An insider threat can cause significant damage to the organization\'s reputation, finances, operations, and legal compliance. The user\'s activity of logging in remotely after hours and copying large amounts of data to a personal device is an example of a malicious insider threat, as it violates the organization\'s security policies and compromises the confidentiality and integrity of the data.':
+                '內部威脅是來自組織內部的安全風險，如員工、承包商或業務夥伴，他們對組織的資料和系統有授權存取。內部威脅可能是惡意的，如竊取、洩漏或破壞敏感資料，或者是無意的，如成為網路釣魚或社交工程的受害者。內部威脅可能對組織的聲譽、財務、營運和法律合規造成重大損害。使用者在下班後遠端登入並將大量資料複製到個人設備的活動是惡意內部威脅的一個例子，因為它違反了組織的安全政策並危害了資料的機密性和完整性。',
+                
+                'Non-repudiation is the ability to prove that a message or document was sent or signed by a particular person, and that the person cannot deny sending or signing it. Non-repudiation can be achieved by using cryptographic techniques, such as hashing and digital signatures, that can verify the authenticity and integrity of the message or document. Non-repudiation can be useful for legal, financial, or contractual purposes, as it can provide evidence of the origin and content of the message or document.':
+                '不可否認性是證明訊息或文件是由特定人員發送或簽署的能力，並且該人員不能否認發送或簽署它。不可否認性可以通過使用密碼技術來實現，如雜湊和數位簽章，這些技術可以驗證訊息或文件的真實性和完整性。不可否認性對於法律、財務或合約目的很有用，因為它可以提供訊息或文件的來源和內容的證據。',
+                
+                'DLP stands for Data Loss Prevention, which is a tool that can assist with detecting and preventing the unauthorized transmission or leakage of sensitive data, such as a customer\'s PII (Personally Identifiable Information). DLP can monitor, filter, and block data in motion (such as emails), data at rest (such as files), and data in use (such as applications). DLP can also alert the sender, the recipient, or the administrator of the data breach, and apply remediation actions, such as encryption, quarantine, or deletion. DLP can help an organization comply with data protection regulations, such as GDPR, HIPAA, or PCI DSS, and protect its reputation and assets.':
+                'DLP代表資料外洩防護，這是一種可以協助偵測和防止敏感資料（如客戶的個人識別資訊PII）未經授權傳輸或洩漏的工具。DLP可以監控、過濾和阻止傳輸中的資料（如電子郵件）、靜態資料（如檔案）和使用中的資料（如應用程式）。DLP還可以向發送者、接收者或管理員警告資料外洩，並應用補救措施，如加密、隔離或刪除。DLP可以幫助組織遵守資料保護法規，如GDPR、HIPAA或PCI DSS，並保護其聲譽和資產。',
+                
+                // 繼續添加更多翻譯...
+            };
+            
+            return translations[text] || text; // 如果沒有翻譯，返回原文
+        };
+
+        const answerType = item.answer && item.answer.length > 1 ? '多選題' : '單選題';
+        const typeColor = item.answer && item.answer.length > 1 ? '#e91e63' : '#007bff';
+        
+        const itemHtml = `
+            <div ${anchorId} style="margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: white;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0; color: #333;">題目 ${qNum}</h3>
+                    <span style="background: ${typeColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">${answerType}</span>
+                </div>
+                <div style="font-size: 16px; line-height: 1.6; margin-bottom: 15px;">${item.question}</div>
+                <div style="margin-bottom: 15px;">${optionsHtml}</div>
+                <div style="padding: 10px; background: #e8f5e8; border-radius: 5px; border-left: 4px solid #28a745;">
+                    <strong>正確答案：</strong> ${item.answer}<br>
+                    ${answerOptionsHtml ? `<div style="margin: 8px 0;">${answerOptionsHtml}</div>` : ''}
+                    <strong>解釋：</strong> ${translateExplanation(item.explanation)}
+                </div>
+            </div>
+        `;
+        htmlContent += itemHtml;
+    });
+    
+    previewDiv.innerHTML = htmlContent;
+    
+    // 收合選單
+    const menubarContent = document.getElementById('menubar-content');
+    const menubarToggle = document.getElementById('menubar-toggle');
+    if (menubarContent && menubarContent.style.display === 'flex') {
+        menubarContent.style.display = 'none';
+        if (menubarToggle) menubarToggle.innerHTML = '▼ 題號選單';
+    }
+}
+
 // 浮動menubar按鈕樣式與響應式樣式
 const menubarStyle = document.createElement('style');
 menubarStyle.innerHTML = `
